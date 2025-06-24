@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agendamento de Notebooks</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons for tooltips -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Estilo geral usando a fonte Inter e cores mais suaves */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        /* Estilo para os contêineres principais */
+        .main-container {
+            padding-top: 2rem;
+            padding-bottom: 4rem;
+        }
+
+        /* Estilo para os títulos das seções */
+        h1, h2 {
+            font-weight: 700;
+            color: #343a40;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        /* Container para os botões dos notebooks com quebra de linha automática */
+        #notebooks-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        /* Estilo customizado para os botões dos notebooks */
+        .notebook-btn {
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border: none;
+        }
+
+        .notebook-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        /* Estilo para a tabela de reservas */
+        .table {
+            background-color: #ffffff;
+            border-radius: 0.5rem;
+            overflow: hidden; /* Garante que os cantos arredondados sejam aplicados */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .table thead th {
+            background-color: #e9ecef;
+            border-bottom: 2px solid #dee2e6;
+            color: #495057;
+        }
+
+        /* Estilo para o modal */
+        .modal-header {
+            background-color: #0d6efd;
+            color: white;
+        }
+
+        .modal-title {
+            font-weight: 600;
+        }
+        
+        /* Estilo para a área de notificação de erro */
+        #error-notification {
+            display: none; /* Escondido por padrão */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container main-container">
+        <header class="text-center mb-5">
+            <h1>Sistema de Agendamento de Notebooks</h1>
+        </header>
+
+        <!-- Seção para Notificação de Erros -->
+        <div id="error-notification" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>Ocorreu um erro:</strong> <span id="error-message"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <!-- Seção de Notebooks -->
+        <section id="notebooks-section">
+            <h2>Notebooks</h2>
+            <div id="notebooks-container" class="p-3 bg-white rounded shadow-sm min-vh-25">
+                <!-- Botões dos notebooks serão inseridos aqui via JavaScript -->
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Carregando notebooks...</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção de Reservas Ativas -->
+        <section id="reservas-section" class="mt-5">
+            <h2>Reservas Ativas</h2>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th scope="col">Responsável</th>
+                            <th scope="col">Notebook(s)</th>
+                            <th scope="col">Data da Reserva</th>
+                            <th scope="col">Data da Devolução</th>
+                            <th scope="col">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reservas-container">
+                        <!-- Linhas da tabela serão inseridas aqui via JavaScript -->
+                    </tbody>
+                </table>
+                 <div id="reservas-placeholder" class="text-center p-4 bg-white rounded shadow-sm">
+                    <p class="text-muted">Nenhuma reserva ativa no momento.</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Modal para fazer a reserva -->
+    <div class="modal fade" id="reservaModal" tabindex="-1" aria-labelledby="reservaModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="reservaModalLabel">Fazer Reserva</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="reservaForm">
+                        <!-- Campo oculto para guardar o ID do notebook -->
+                        <input type="hidden" id="notebookIdInput">
+                        
+                        <div class="mb-3">
+                            <label for="nome" class="form-label">Nome Completo</label>
+                            <input type="text" class="form-control" id="nome" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="matricula" class="form-label">Matrícula</label>
+                            <input type="text" class="form-control" id="matricula" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="funcao" class="form-label">Função</label>
+                            <input type="text" class="form-control" id="funcao" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="dataDevolucao" class="form-label">Data e Hora da Devolução</label>
+                            <input type="datetime-local" class="form-control" id="dataDevolucao" required>
+                        </div>
+                        
+                        <div class="d-grid">
+                           <button type="submit" class="btn btn-primary">Confirmar Reserva</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle (Popper.js incluso) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // URL base da sua API. Altere se o seu backend rodar em outra porta.
+            const API_URL = 'http://localhost:5000/api';
+
+            // Elementos da página
+            const notebooksContainer = document.getElementById('notebooks-container');
+            const reservasContainer = document.getElementById('reservas-container');
+            const reservasPlaceholder = document.getElementById('reservas-placeholder');
+            const reservaForm = document.getElementById('reservaForm');
+            const notebookIdInput = document.getElementById('notebookIdInput');
+            const reservaModalElement = document.getElementById('reservaModal');
+            const reservaModal = new bootstrap.Modal(reservaModalElement);
+
+            const errorNotification = document.getElementById('error-notification');
+            const errorMessageSpan = document.getElementById('error-message');
+
+            let allNotebooks = []; // Cache para todos os notebooks
+
+            /**
+             * Exibe uma notificação de erro na tela.
+             * @param {string} message - A mensagem de erro a ser exibida.
+             */
+            const showError = (message) => {
+                errorMessageSpan.textContent = message;
+                errorNotification.style.display = 'block';
+            };
+
+            /**
+             * Renderiza os botões dos notebooks com base no status e nas reservas ativas.
+             * @param {Array} notebooks - Lista de todos os notebooks.
+             * @param {Array} reservas - Lista de todas as reservas.
+             */
+            const renderNotebooks = (notebooks, reservas) => {
+                // Cria um mapa para verificar rapidamente se um notebook está reservado e até quando.
+                const reservedUntilMap = new Map();
+                const now = new Date();
+
+                reservas.forEach(reserva => {
+                    const dataFim = new Date(reserva.data_fim);
+                    if (dataFim > now) { // Considera apenas reservas que ainda não terminaram
+                        reserva.notebooks_ids.forEach(id => {
+                            reservedUntilMap.set(id, dataFim);
+                        });
+                    }
+                });
+
+                notebooksContainer.innerHTML = ''; // Limpa o container
+
+                if (notebooks.length === 0) {
+                    notebooksContainer.innerHTML = '<p class="text-muted">Nenhum notebook cadastrado.</p>';
+                    return;
+                }
+
+                notebooks.forEach(notebook => {
+                    const button = document.createElement('button');
+                    button.textContent = notebook.nome;
+                    button.dataset.id = notebook.id;
+
+                    const isReserved = reservedUntilMap.has(notebook.id);
+                    const isAvailableByStatus = notebook.status === 'disponivel';
+
+                    if (isAvailableByStatus && !isReserved) {
+                        button.className = 'btn btn-success notebook-btn';
+                        button.addEventListener('click', () => openReservaModal(notebook));
+                    } else {
+                        button.className = 'btn btn-secondary notebook-btn';
+                        button.disabled = true;
+                        
+                        let title = `Status: ${notebook.status.replace('_', ' ')}`;
+                        if (isReserved) {
+                            const dataFim = reservedUntilMap.get(notebook.id).toLocaleString('pt-BR');
+                            title = `Reservado até ${dataFim}`;
+                        }
+                        button.setAttribute('data-bs-toggle', 'tooltip');
+                        button.setAttribute('data-bs-placement', 'top');
+                        button.setAttribute('title', title);
+                    }
+                    notebooksContainer.appendChild(button);
+                });
+                
+                // Inicializa os tooltips do Bootstrap
+                const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl);
+                });
+            };
+
+             /**
+             * Renderiza a tabela de reservas ativas.
+             * @param {Array} reservas - Lista de todas as reservas.
+             */
+            const renderReservas = (reservas) => {
+                reservasContainer.innerHTML = ''; // Limpa a tabela
+                const now = new Date();
+                
+                const activeReservas = reservas.filter(r => new Date(r.data_fim) > now);
+
+                if (activeReservas.length > 0) {
+                    reservasPlaceholder.style.display = 'none';
+                    activeReservas.forEach(reserva => {
+                        const tr = document.createElement('tr');
+                        const dataInicio = new Date(reserva.data_inicio).toLocaleString('pt-BR');
+                        const dataFim = new Date(reserva.data_fim).toLocaleString('pt-BR');
+
+                        // Mapeia os IDs para nomes de notebooks
+                        const notebookNames = reserva.notebooks_ids
+                            .map(id => allNotebooks.find(n => n.id === id)?.nome || `ID ${id}`)
+                            .join(', ');
+
+                        tr.innerHTML = `
+                            <td>${reserva.responsavel}</td>
+                            <td>${notebookNames}</td>
+                            <td>${dataInicio}</td>
+                            <td>${dataFim}</td>
+                            <td>
+                                <button class="btn btn-danger btn-sm" onclick="cancelarReserva('${reserva.id}')" title="Cancelar Reserva">
+                                    <i class="bi bi-trash-fill"></i>
+                                </button>
+                            </td>
+                        `;
+                        reservasContainer.appendChild(tr);
+                    });
+                } else {
+                    reservasPlaceholder.style.display = 'block';
+                }
+            };
+
+            /**
+             * Abre o modal de reserva.
+             * @param {object} notebook - O objeto do notebook a ser reservado.
+             */
+            const openReservaModal = (notebook) => {
+                reservaForm.reset();
+                notebookIdInput.value = notebook.id;
+                document.getElementById('reservaModalLabel').textContent = `Reservar: ${notebook.nome}`;
+                reservaModal.show();
+            };
+            
+            /**
+             * Função para cancelar uma reserva.
+             * @param {string} reservaId - O ID da reserva a ser cancelada.
+             */
+            window.cancelarReserva = async (reservaId) => {
+                if (!confirm('Tem certeza que deseja cancelar esta reserva?')) {
+                    return;
+                }
+                try {
+                    const response = await fetch(`${API_URL}/reservas/${reservaId}`, {
+                        method: 'DELETE',
+                    });
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || 'Falha ao cancelar a reserva.');
+                    }
+                    // Recarrega os dados para atualizar a UI
+                    await loadData();
+                } catch (error) {
+                    console.error('Erro ao cancelar reserva:', error);
+                    showError(error.message);
+                }
+            };
+
+
+            /**
+             * Lida com o envio do formulário de reserva.
+             */
+            reservaForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+
+                const nome = document.getElementById('nome').value;
+                const matricula = document.getElementById('matricula').value;
+                const funcao = document.getElementById('funcao').value;
+                const dataDevolucao = document.getElementById('dataDevolucao').value;
+                const notebookId = parseInt(notebookIdInput.value);
+                
+                if (new Date(dataDevolucao) <= new Date()) {
+                    showError('A data de devolução deve ser no futuro.');
+                    return;
+                }
+                
+                const reservaData = {
+                    responsavel: `${nome} (${funcao} - Matrícula: ${matricula})`,
+                    data_inicio: new Date().toISOString(),
+                    data_fim: new Date(dataDevolucao).toISOString(),
+                    notebooks_ids: [notebookId]
+                };
+
+                try {
+                    const response = await fetch(`${API_URL}/reservas`, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(reservaData),
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || 'Falha ao criar a reserva.');
+                    }
+                    
+                    reservaModal.hide();
+                    await loadData(); // Recarrega tudo
+                } catch (error) {
+                    console.error('Erro ao criar reserva:', error);
+                    showError(`Erro ao criar reserva: ${error.message}`);
+                }
+            });
+            
+            /**
+             * Carrega todos os dados da API e renderiza a página.
+             */
+            const loadData = async () => {
+                try {
+                    // Busca notebooks e reservas em paralelo
+                    const [notebooksResponse, reservasResponse] = await Promise.all([
+                        fetch(`${API_URL}/notebooks`),
+                        fetch(`${API_URL}/reservas`)
+                    ]);
+
+                    if (!notebooksResponse.ok) throw new Error('Não foi possível carregar os notebooks.');
+                    if (!reservasResponse.ok) throw new Error('Não foi possível carregar as reservas.');
+
+                    const notebooks = await notebooksResponse.json();
+                    allNotebooks = notebooks; // Atualiza o cache
+                    const reservas = await reservasResponse.json();
+
+                    // Renderiza os componentes com os dados frescos
+                    renderNotebooks(notebooks, reservas);
+                    renderReservas(reservas);
+
+                } catch (error) {
+                    console.error('Erro ao carregar dados:', error);
+                    showError(error.message);
+                    notebooksContainer.innerHTML = '<p class="text-danger">Erro ao carregar dados. Tente recarregar a página.</p>';
+                }
+            };
+
+            loadData(); // Carga inicial
+        });
+    </script>
+</body>
+</html>

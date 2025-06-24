@@ -1,0 +1,34 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# SQLite
+*.sqlite
+*.sqlite3
+*.db
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+
+# IDEs e editores
+.vscode/
+.idea/
+*.swp
+
+# Build e dist
+dist/
+build/
+
+# Coverage (se estiver usando testes)
+coverage/
