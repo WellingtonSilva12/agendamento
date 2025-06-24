@@ -35,34 +35,67 @@
             border-bottom: 2px solid #dee2e6;
         }
 
-        /* Container para os botões dos notebooks com quebra de linha automática */
+        /* Container para os cards dos notebooks */
         #notebooks-container {
             display: flex;
             flex-wrap: wrap;
-            gap: 1rem;
+            gap: 1.5rem; /* Aumentado o espaçamento */
         }
 
-        /* Estilo customizado para os botões dos notebooks */
-        .notebook-btn {
+        /* Estilo para o card do notebook */
+        .notebook-card {
+            width: 220px;
+            border: 1px solid #dee2e6;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .notebook-card:hover:not(.disabled) {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+        }
+
+        .notebook-card.disabled {
+            cursor: not-allowed;
+            filter: grayscale(80%);
+            opacity: 0.65;
+        }
+
+        .notebook-card img {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .notebook-card-body {
+            padding: 1rem;
+        }
+
+        .notebook-card-title {
             font-size: 1rem;
             font-weight: 600;
-            padding: 0.75rem 1.25rem;
-            border-radius: 0.5rem;
-            transition: all 0.2s ease-in-out;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            border: none;
+            margin-bottom: 0.25rem;
+            color: #212529;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        .notebook-btn:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        .notebook-card-text {
+            font-size: 0.875rem;
+            color: #6c757d;
         }
 
         /* Estilo para a tabela de reservas */
         .table {
             background-color: #ffffff;
             border-radius: 0.5rem;
-            overflow: hidden; /* Garante que os cantos arredondados sejam aplicados */
+            overflow: hidden;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
 
@@ -105,7 +138,7 @@
         <section id="notebooks-section">
             <h2>Notebooks</h2>
             <div id="notebooks-container" class="p-3 bg-white rounded shadow-sm min-vh-25">
-                <!-- Botões dos notebooks serão inseridos aqui via JavaScript -->
+                <!-- Cards dos notebooks serão inseridos aqui via JavaScript -->
                 <div class="spinner-border text-primary" role="status">
                     <span class="visually-hidden">Carregando notebooks...</span>
                 </div>
@@ -212,7 +245,7 @@
             };
 
             /**
-             * Renderiza os botões dos notebooks com base no status e nas reservas ativas.
+             * Renderiza os cards dos notebooks com base no status e nas reservas ativas.
              * @param {Array} notebooks - Lista de todos os notebooks.
              * @param {Array} reservas - Lista de todas as reservas.
              */
@@ -238,30 +271,39 @@
                 }
 
                 notebooks.forEach(notebook => {
-                    const button = document.createElement('button');
-                    button.textContent = notebook.nome;
-                    button.dataset.id = notebook.id;
+                    const card = document.createElement('div');
+                    card.className = 'notebook-card';
+                    card.dataset.id = notebook.id;
+                    
+                    const patrimonioText = notebook.patrimonio ? `Patrimônio: ${notebook.patrimonio}` : 'Patrimônio: N/A';
+                    const imageUrl = `https://placehold.co/400x300/6c757d/ffffff?text=Notebook`;
+
+                    card.innerHTML = `
+                        <img src="${imageUrl}" alt="Imagem de um notebook">
+                        <div class="notebook-card-body">
+                            <h5 class="notebook-card-title" title="${notebook.nome}">${notebook.nome}</h5>
+                            <p class="notebook-card-text">${patrimonioText}</p>
+                        </div>
+                    `;
 
                     const isReserved = reservedUntilMap.has(notebook.id);
                     const isAvailableByStatus = notebook.status === 'disponivel';
 
                     if (isAvailableByStatus && !isReserved) {
-                        button.className = 'btn btn-success notebook-btn';
-                        button.addEventListener('click', () => openReservaModal(notebook));
+                        card.addEventListener('click', () => openReservaModal(notebook));
                     } else {
-                        button.className = 'btn btn-secondary notebook-btn';
-                        button.disabled = true;
+                        card.classList.add('disabled');
                         
                         let title = `Status: ${notebook.status.replace('_', ' ')}`;
                         if (isReserved) {
                             const dataFim = reservedUntilMap.get(notebook.id).toLocaleString('pt-BR');
                             title = `Reservado até ${dataFim}`;
                         }
-                        button.setAttribute('data-bs-toggle', 'tooltip');
-                        button.setAttribute('data-bs-placement', 'top');
-                        button.setAttribute('title', title);
+                        card.setAttribute('data-bs-toggle', 'tooltip');
+                        card.setAttribute('data-bs-placement', 'top');
+                        card.setAttribute('title', title);
                     }
-                    notebooksContainer.appendChild(button);
+                    notebooksContainer.appendChild(card);
                 });
                 
                 // Inicializa os tooltips do Bootstrap
