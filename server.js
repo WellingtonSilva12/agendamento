@@ -26,7 +26,7 @@ const db = new sqlite3.Database(DB_FILE, (err) => {
 
 // --- Inicialização do Banco de Dados ---
 db.serialize(() => {
-  // Tabela de Usuários ATUALIZADA
+  // Tabela de Usuários
   db.run(`
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -76,17 +76,6 @@ db.serialize(() => {
       PRIMARY KEY(reserva_id, notebook_id)
     )
   `);
-
-  // Inserir notebook inicial se a tabela estiver vazia
-  db.get("SELECT COUNT(*) as count FROM notebooks", (err, row) => {
-    if (err) return;
-    if (row.count === 0) {
-      db.run(
-        "INSERT INTO notebooks (nome, status) VALUES (?, ?)",
-        ['Notebook 01', 'disponivel']
-      );
-    }
-  });
 });
 
 // --- Funções Auxiliares do Banco de Dados (com Promises) ---
@@ -144,8 +133,6 @@ const authenticateToken = (req, res, next) => {
 };
 
 // --- Rotas de Autenticação ---
-
-// POST /api/auth/register - Registrar um novo usuário (ATUALIZADO)
 app.post('/api/auth/register', async (req, res) => {
     const { username, password, nome, matricula, email, funcao, role = 'user' } = req.body;
 
@@ -161,22 +148,17 @@ app.post('/api/auth/register', async (req, res) => {
         
         const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
         
-        const result = await dbRun(
+        await dbRun(
             "INSERT INTO users (username, password, nome, matricula, email, funcao, role) VALUES (?, ?, ?, ?, ?, ?, ?)",
             [username, hashedPassword, nome, matricula, email, funcao, role]
         );
-
-        const newUser = await dbGet("SELECT id, username, nome, email, funcao, role FROM users WHERE id = ?", [result.lastID]);
-
-        res.status(201).json({ message: "Usuário criado com sucesso!", user: newUser });
+        res.status(201).json({ message: "Usuário criado com sucesso!" });
     } catch (err) {
         console.error('Erro ao registrar usuário:', err);
         res.status(500).json({ error: 'Erro interno ao registrar usuário' });
     }
 });
 
-
-// POST /api/auth/login - Autenticar um usuário (ATUALIZADO)
 app.post('/api/auth/login', async (req, res) => {
     const { username, password } = req.body;
 
@@ -199,24 +181,16 @@ app.post('/api/auth/login', async (req, res) => {
             id: user.id, 
             username: user.username,
             nome: user.nome,
+            matricula: user.matricula,
             role: user.role 
         };
 
         const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '8h' });
         
-        // Retorna mais dados do usuário no login
         res.json({ 
             message: "Login bem-sucedido!",
             token,
-            user: {
-                id: user.id,
-                username: user.username,
-                nome: user.nome,
-                email: user.email,
-                matricula: user.matricula,
-                funcao: user.funcao,
-                role: user.role
-            }
+            user: payload
         });
     } catch (err) {
         console.error('Erro ao fazer login:', err);
@@ -225,46 +199,33 @@ app.post('/api/auth/login', async (req, res) => {
 });
 
 
-// --- Rotas de Notebooks (sem alterações) ---
+// --- Rotas de Notebooks ---
 app.get('/api/notebooks', async (req, res) => {
     try {
-      const notebooks = await dbAll("SELECT * FROM notebooks WHERE status != 'inativo'");
+      const query = "SELECT * FROM notebooks";
+      const notebooks = await dbAll(query);
       res.json(notebooks);
     } catch (err) {
       res.status(500).json({ error: 'Erro ao buscar notebooks' });
     }
 });
-// ... (demais rotas de notebooks permanecem iguais)
+
 app.post('/api/notebooks', authenticateToken, async (req, res) => {
   try {
+    if (req.user.role !== 'admin') {
+        return res.status(403).json({ error: 'Acesso negado. Apenas administradores.' });
+    }
     const { nome, patrimonio, status = 'disponivel' } = req.body;
-    if (!nome) {
-      return res.status(400).json({ error: 'Nome é obrigatório.' });
-    }
-    if (!STATUS_VALIDOS.includes(status)) {
-      return res.status(400).json({
-        error: 'Status inválido. Os status válidos são: disponivel, em_manutencao, inativo.'
-      });
-    }
+    if (!nome) return res.status(400).json({ error: 'Nome é obrigatório.' });
+    if (!STATUS_VALIDOS.includes(status)) return res.status(400).json({ error: 'Status inválido.' });
+    
     if (patrimonio) {
-      const existente = await dbGet(
-        "SELECT id FROM notebooks WHERE patrimonio = ?",
-        [patrimonio]
-      );
-      if (existente) {
-        return res.status(409).json({
-          error: 'Já existe um notebook com este número de patrimônio.'
-        });
-      }
+        const existente = await dbGet("SELECT id FROM notebooks WHERE patrimonio = ? AND patrimonio IS NOT NULL AND patrimonio != ''", [patrimonio]);
+        if (existente) return res.status(409).json({ error: 'Patrimônio já cadastrado.' });
     }
-    const result = await dbRun(
-      "INSERT INTO notebooks (nome, patrimonio, status) VALUES (?, ?, ?)",
-      [nome, patrimonio, status]
-    );
-    const novoNotebook = await dbGet(
-      "SELECT * FROM notebooks WHERE id = ?",
-      [result.lastID]
-    );
+    
+    const result = await dbRun("INSERT INTO notebooks (nome, patrimonio, status) VALUES (?, ?, ?)", [nome, patrimonio, status]);
+    const novoNotebook = await dbGet("SELECT * FROM notebooks WHERE id = ?", [result.lastID]);
     res.status(201).json(novoNotebook);
   } catch (err) {
     console.error('Erro ao criar notebook:', err);
@@ -272,7 +233,56 @@ app.post('/api/notebooks', authenticateToken, async (req, res) => {
   }
 });
 
-// --- Rotas de Reservas (sem alterações) ---
+app.put('/api/notebooks/:id', authenticateToken, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+        return res.status(403).json({ error: 'Acesso negado. Apenas administradores.' });
+    }
+    const { id } = req.params;
+    const { nome, patrimonio, status } = req.body;
+    
+    const notebook = await dbGet("SELECT * FROM notebooks WHERE id = ?", [id]);
+    if (!notebook) return res.status(404).json({ error: 'Notebook não encontrado.' });
+    
+    if (!nome) return res.status(400).json({ error: 'Nome é obrigatório.' });
+    if (!STATUS_VALIDOS.includes(status)) return res.status(400).json({ error: 'Status inválido.' });
+
+    if (patrimonio && patrimonio !== notebook.patrimonio) {
+        const existente = await dbGet("SELECT id FROM notebooks WHERE patrimonio = ? AND patrimonio IS NOT NULL AND patrimonio != ''", [patrimonio]);
+        if (existente) return res.status(409).json({ error: 'Patrimônio já cadastrado em outro notebook.' });
+    }
+    
+    await dbRun("UPDATE notebooks SET nome = ?, patrimonio = ?, status = ?, atualizado_em = datetime('now') WHERE id = ?", [nome, patrimonio, status, id]);
+    const notebookAtualizado = await dbGet("SELECT * FROM notebooks WHERE id = ?", [id]);
+    res.json(notebookAtualizado);
+
+  } catch (err) {
+      console.error('Erro ao atualizar notebook:', err);
+      res.status(500).json({ error: 'Erro interno ao atualizar notebook.' });
+  }
+});
+
+app.delete('/api/notebooks/:id', authenticateToken, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+        return res.status(403).json({ error: 'Acesso negado. Apenas administradores.' });
+    }
+    const { id } = req.params;
+    const notebook = await dbGet("SELECT * FROM notebooks WHERE id = ?", [id]);
+    if (!notebook) return res.status(404).json({ error: 'Notebook não encontrado.' });
+    
+    // Soft delete: muda o status para "inativo"
+    await dbRun("UPDATE notebooks SET status = 'inativo', inativado_em = datetime('now') WHERE id = ?", [id]);
+    res.status(200).json({ message: 'Notebook marcado como inativo.' });
+
+  } catch (err) {
+      console.error('Erro ao inativar notebook:', err);
+      res.status(500).json({ error: 'Erro interno ao inativar notebook' });
+  }
+});
+
+
+// --- Rotas de Reservas ---
 app.use('/api/reservas', authenticateToken);
 
 app.post('/api/reservas', async (req, res) => {
@@ -282,117 +292,58 @@ app.post('/api/reservas', async (req, res) => {
     if (!responsavel || !data_inicio || !data_fim || !notebooks_ids?.length) {
       return res.status(400).json({ error: 'Todos os campos são obrigatórios.' });
     }
-    if (!validarData(data_inicio) || !validarData(data_fim)) {
-      return res.status(400).json({ error: 'Formato de data inválido' });
-    }
-    if (new Date(data_fim) <= new Date(data_inicio)) {
-      return res.status(400).json({ error: 'A data final deve ser posterior à data de início.' });
-    }
 
-    const placeholders = notebooks_ids.map(() => '?').join(',');
-    const notebooks = await dbAll(
-      `SELECT id, status FROM notebooks WHERE id IN (${placeholders})`,
-      notebooks_ids
-    );
-
-    if (notebooks.length !== notebooks_ids.length) {
-      const idsEncontrados = notebooks.map(n => n.id);
-      const notebooksInvalidos = notebooks_ids.filter(id => !idsEncontrados.includes(id));
-      return res.status(404).json({
-        error: `Notebooks não encontrados: ${notebooksInvalidos.join(', ')}`
-      });
-    }
-
-    const notebooksIndisponiveis = notebooks.filter(n => n.status !== 'disponivel').map(n => n.id);
-    if (notebooksIndisponiveis.length > 0) {
-      return res.status(409).json({
-        error: `Notebooks indisponíveis (em manutenção ou inativos): ${notebooksIndisponiveis.join(', ')}`
-      });
+    if (!validarData(data_inicio) || !validarData(data_fim) || new Date(data_fim) <= new Date(data_inicio)) {
+        return res.status(400).json({ error: 'Datas inválidas.' });
     }
     
+    const placeholders = notebooks_ids.map(() => '?').join(',');
+    const notebooks = await dbAll(`SELECT id, status FROM notebooks WHERE id IN (${placeholders})`, notebooks_ids);
+
+    if (notebooks.some(n => n.status !== 'disponivel')) {
+        return res.status(409).json({ error: 'Um ou mais notebooks selecionados não estão disponíveis.'});
+    }
+
     const conflitos = await dbAll(`
-      SELECT r.id as reserva_id, rn.notebook_id
-      FROM reservas r
-      JOIN reserva_notebooks rn ON r.id = rn.reserva_id
-      WHERE rn.notebook_id IN (${placeholders})
-      AND NOT (r.data_fim <= ? OR r.data_inicio >= ?)
+        SELECT r.id FROM reservas r
+        JOIN reserva_notebooks rn ON r.id = rn.reserva_id
+        WHERE rn.notebook_id IN (${placeholders}) AND NOT (r.data_fim <= ? OR r.data_inicio >= ?)
     `, [...notebooks_ids, data_inicio, data_fim]);
 
     if (conflitos.length > 0) {
-      return res.status(409).json({
-        error: 'Conflito de horário. Os notebooks solicitados já estão reservados para o período.',
-        conflitos
-      });
+        return res.status(409).json({ error: 'Conflito de horário para um ou mais notebooks.' });
     }
 
     const reservaId = uuidv4();
-    await dbRun(
-      "INSERT INTO reservas (id, responsavel, data_inicio, data_fim) VALUES (?, ?, ?, ?)",
-      [reservaId, responsavel, data_inicio, data_fim]
-    );
-
+    await dbRun("INSERT INTO reservas (id, responsavel, data_inicio, data_fim) VALUES (?, ?, ?, ?)", [reservaId, responsavel, data_inicio, data_fim]);
+    
     for (const notebookId of notebooks_ids) {
-      await dbRun(
-        "INSERT INTO reserva_notebooks (reserva_id, notebook_id) VALUES (?, ?)",
-        [reservaId, notebookId]
-      );
+        await dbRun("INSERT INTO reserva_notebooks (reserva_id, notebook_id) VALUES (?, ?)", [reservaId, notebookId]);
     }
+    
+    res.status(201).json({ message: 'Reserva criada com sucesso!' });
 
-    const novaReserva = await dbGet("SELECT * FROM reservas WHERE id = ?", [reservaId]);
-    novaReserva.notebooks = await dbAll(`SELECT id, nome, patrimonio FROM notebooks WHERE id IN (${placeholders})`, notebooks_ids);
-
-    res.status(201).json(novaReserva);
   } catch (err) {
     console.error('Erro ao criar reserva:', err);
-    res.status(500).json({ error: 'Erro ao criar reserva' });
+    res.status(500).json({ error: 'Erro interno ao criar reserva' });
   }
 });
 
 app.get('/api/reservas', async (req, res) => {
   try {
-    const { notebook_id, responsavel } = req.query;
+    const reservas = await dbAll(`
+        SELECT r.*, 
+               json_group_array(json_object('id', n.id, 'nome', n.nome, 'patrimonio', n.patrimonio)) as notebooks
+        FROM reservas r
+        LEFT JOIN reserva_notebooks rn ON r.id = rn.reserva_id
+        LEFT JOIN notebooks n ON rn.notebook_id = n.id
+        GROUP BY r.id
+        ORDER BY r.data_inicio DESC
+    `);
     
-    let query = `
-      SELECT r.id, r.responsavel, r.data_inicio, r.data_fim, r.criado_em,
-             GROUP_CONCAT(n.id) as notebook_ids,
-             GROUP_CONCAT(n.nome) as notebook_nomes
-      FROM reservas r
-      LEFT JOIN reserva_notebooks rn ON r.id = rn.reserva_id
-      LEFT JOIN notebooks n ON rn.notebook_id = n.id
-    `;
-    const params = [];
-    let whereClauses = [];
-
-    if (notebook_id) {
-        whereClauses.push(`r.id IN (SELECT reserva_id FROM reserva_notebooks WHERE notebook_id = ?)`);
-        params.push(notebook_id);
-    }
-
-    if (responsavel) {
-      whereClauses.push("r.responsavel LIKE ?");
-      params.push(`%${responsavel}%`);
-    }
-
-    if (whereClauses.length > 0) {
-        query += " WHERE " + whereClauses.join(" AND ");
-    }
-
-    query += " GROUP BY r.id ORDER BY r.data_inicio DESC";
-
-    const reservas = await dbAll(query, params);
-    
-    const reservasFormatadas = reservas.map(reserva => ({
-      id: reserva.id,
-      responsavel: reserva.responsavel,
-      data_inicio: reserva.data_inicio,
-      data_fim: reserva.data_fim,
-      criado_em: reserva.criado_em,
-      notebooks: reserva.notebook_ids 
-        ? reserva.notebook_ids.split(',').map((id, index) => ({
-            id: Number(id),
-            nome: reserva.notebook_nomes.split(',')[index]
-          }))
-        : []
+    const reservasFormatadas = reservas.map(r => ({
+        ...r,
+        notebooks: r.notebooks ? JSON.parse(r.notebooks).filter(n => n.id !== null) : []
     }));
 
     res.json(reservasFormatadas);
@@ -406,11 +357,10 @@ app.delete('/api/reservas/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const reserva = await dbGet("SELECT * FROM reservas WHERE id = ?", [id]);
-    if (!reserva) {
-      return res.status(404).json({ error: 'Reserva não encontrada' });
-    }
+    if (!reserva) return res.status(404).json({ error: 'Reserva não encontrada' });
+    
     await dbRun("DELETE FROM reservas WHERE id = ?", [id]);
-    res.status(200).json({ message: 'Reserva cancelada com sucesso', reserva_id: id });
+    res.status(200).json({ message: 'Reserva cancelada com sucesso' });
   } catch (err) {
     console.error('Erro ao cancelar reserva:', err);
     res.status(500).json({ error: 'Erro ao cancelar reserva' });
@@ -426,9 +376,7 @@ app.listen(PORT, () => {
 
 process.on('SIGINT', () => {
   db.close((err) => {
-    if (err) {
-      console.error(err.message);
-    }
+    if (err) console.error(err.message);
     console.log('\nConexão com o banco de dados fechada.');
     process.exit(0);
   });
