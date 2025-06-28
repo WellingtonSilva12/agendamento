@@ -1,0 +1,32 @@
+[
+  {
+    "action": "RESERVA_CRIADA",
+    "timestamp": "2025-06-28T17:13:14.392Z",
+    "data": {
+      "reservaId": "33aa14a6-9bad-4d57-8a90-70450a839a6e",
+      "responsavel": "Larissa Pires dos Santos (1010)",
+      "data_inicio": "2025-06-28T17:13:14.347Z",
+      "data_fim": "2025-06-30T02:59:59.999Z",
+      "notebooks": [
+        {
+          "id": 6,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "1034",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": null,
+          "criado_em": "2025-06-25 23:49:05"
+        },
+        {
+          "id": 10,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "1038",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": null,
+          "criado_em": "2025-06-25 23:49:17"
+        }
+      ]
+    }
+  }
+]

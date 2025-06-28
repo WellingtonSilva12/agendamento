@@ -49,11 +49,36 @@
       cursor: pointer;
       background-color: #fff;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      position: relative; /* Adicionado para posicionamento do ícone */
     }
 
     .notebook-card:hover:not(.disabled) {
       transform: translateY(-5px);
       box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Estilo para card selecionado */
+    .notebook-card.selected {
+        border-color: #0d6efd; /* Cor primária do Bootstrap */
+        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
+    }
+
+    /* Ícone de seleção */
+    .selection-icon {
+        display: none;
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        font-size: 1.75rem;
+        color: #0d6efd;
+        background-color: white;
+        border-radius: 50%;
+        padding: 0;
+        line-height: 1;
+    }
+    
+    .notebook-card.selected .selection-icon {
+        display: block;
     }
 
     .notebook-card.disabled {
@@ -188,47 +213,34 @@
       </section>
     </div>
   </div>
-
-  <!-- MODAIS -->
-  <!-- Modal de Login -->
-  <div class="modal fade" id="loginModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <form id="loginForm">
-          <div class="modal-header">
-            <h5 class="modal-title">Login</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
-          <div class="modal-body">
-            <div class="mb-3">
-              <label for="loginUsername" class="form-label">Usuário</label>
-              <input type="text" class="form-control" id="loginUsername" required>
-            </div>
-            <div class="mb-3">
-              <label for="loginPassword" class="form-label">Senha</label>
-              <input type="password" class="form-control" id="loginPassword" required>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-            <button type="submit" class="btn btn-primary">Entrar</button>
-          </div>
-        </form>
-      </div>
-    </div>
+  
+  <!-- BOTÃO FLUTUANTE DE RESERVA -->
+  <div id="reservation-cta-container" class="position-fixed bottom-0 end-0 p-3" style="display: none;">
+      <button id="reserveSelectedBtn" class="btn btn-primary btn-lg shadow-lg">
+          <i class="bi bi-calendar-plus me-2"></i>
+          Reservar Selecionados 
+          <span id="selected-count-badge" class="badge bg-light text-primary ms-2 rounded-pill">0</span>
+      </button>
   </div>
 
+
+  <!-- MODAIS -->
   <!-- Modal de Reserva -->
   <div class="modal fade" id="reservaModal" tabindex="-1">
       <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
               <div class="modal-header bg-primary text-white">
-                  <h5 class="modal-title" id="reservaModalLabel">Fazer Reserva</h5>
+                  <h5 class="modal-title" id="reservaModalLabel">Confirmar Reserva</h5>
                   <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
               </div>
               <div class="modal-body">
                   <form id="reservaForm">
-                      <input type="hidden" id="notebookIdInput" />
+                      <div class="mb-3">
+                        <label class="form-label">Notebooks Selecionados:</label>
+                        <div id="selectedNotebooksList" class="list-group">
+                            <!-- Lista de notebooks selecionados será inserida aqui -->
+                        </div>
+                      </div>
                       <div class="mb-3">
                           <label for="responsavel" class="form-label">Responsável</label>
                           <input type="text" class="form-control" id="responsavel" required readonly />
@@ -246,28 +258,80 @@
       </div>
   </div>
 
-  <!-- Modal de Gerenciamento de Notebooks -->
+  <!-- Modal de Gerenciamento -->
   <div class="modal fade" id="gerenciarNotebooksModal" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">Gerenciar Notebooks</h5>
+          <h5 class="modal-title">Painel de Gerenciamento</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-            <div id="gerenciar-notebooks-list" class="list-group">
+            <h6>Gerenciar Notebooks</h6>
+            <div id="gerenciar-notebooks-list" class="list-group mb-4">
                 <!-- Lista de notebooks será inserida aqui -->
             </div>
+             <div class="d-grid">
+                <button id="addNotebookBtn" type="button" class="btn btn-primary btn-sm">
+                    <i class="bi bi-plus-circle me-2"></i>Cadastrar Novo Notebook
+                </button>
+            </div>
         </div>
-        <div class="modal-footer">
+        <div class="modal-footer justify-content-between">
+            <div>
+                 <button id="showUsersBtn" type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#gerenciarUsuariosModal">
+                    <i class="bi bi-people-fill"></i> Gerenciar Usuários
+                </button>
+                <button id="showHistoryBtn" type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#historicoModal">
+                    <i class="bi bi-clock-history"></i> Histórico
+                </button>
+            </div>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-            <button id="addNotebookBtn" type="button" class="btn btn-primary">
-                <i class="bi bi-plus-circle me-2"></i>Cadastrar Novo Notebook
-            </button>
         </div>
       </div>
     </div>
   </div>
+  
+    <!-- Modal de Gerenciamento de Usuários (NOVO) -->
+    <div class="modal fade" id="gerenciarUsuariosModal" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Gerenciar Usuários</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="users-container" class="table-responsive">
+                        <!-- Tabela de usuários será inserida aqui -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+  
+  <!-- Modal de Histórico de Reservas -->
+  <div class="modal fade" id="historicoModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Histórico de Reservas</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="history-container" class="table-responsive">
+                    <p class="text-center text-muted">Carregando histórico...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+  </div>
+
 
   <!-- Modal de Formulário de Notebook -->
   <div class="modal fade" id="notebookFormModal" tabindex="-1">
@@ -321,6 +385,12 @@
       const reservasContainer = document.getElementById("reservas-container");
       const reservasPlaceholder = document.getElementById("reservas-placeholder");
       const gerenciarNotebooksList = document.getElementById("gerenciar-notebooks-list");
+      const reservationCtaContainer = document.getElementById('reservation-cta-container');
+      const reserveSelectedBtn = document.getElementById('reserveSelectedBtn');
+      const selectedCountBadge = document.getElementById('selected-count-badge');
+      const selectedNotebooksList = document.getElementById('selectedNotebooksList');
+      const historyContainer = document.getElementById('history-container');
+      const usersContainer = document.getElementById('users-container');
       
       // Modais
       const reservaModal = new bootstrap.Modal(document.getElementById("reservaModal"));
@@ -332,9 +402,11 @@
       const loginForm = document.getElementById("loginForm");
       const notebookForm = document.getElementById("notebookForm");
       const addNotebookBtn = document.getElementById("addNotebookBtn");
-
+      const showHistoryBtn = document.getElementById("showHistoryBtn");
+      const showUsersBtn = document.getElementById("showUsersBtn");
 
       let allNotebooks = [];
+      let selectedNotebooks = new Set();
 
       // --- GERENCIAMENTO DE AUTENTICAÇÃO ---
 
@@ -348,48 +420,28 @@
       
       const apiFetch = async (endpoint, options = {}) => {
           const token = getToken();
-          const headers = {
-              'Content-Type': 'application/json',
-              ...options.headers,
-          };
-
+          const headers = { 'Content-Type': 'application/json', ...options.headers };
           if (token) {
               headers['Authorization'] = `Bearer ${token}`;
           }
-
           const response = await fetch(`${API_URL}${endpoint}`, { ...options, headers });
-
           if (response.status === 401 || response.status === 403) {
               logout();
               showNotification('Sua sessão expirou. Por favor, faça login novamente.', 'danger');
               throw new Error('Não autorizado');
           }
-
           if (!response.ok) {
               const contentType = response.headers.get("content-type");
               let errorMessage = `Erro ${response.status}: ${response.statusText}`;
-
-              if (contentType && contentType.indexOf("application/json") !== -1) {
-                  try {
-                      const errorData = await response.json();
-                      errorMessage = errorData.error || JSON.stringify(errorData);
-                  } catch (jsonError) {
-                      console.error("Não foi possível interpretar o erro JSON:", jsonError);
-                  }
+              if (contentType && contentType.includes("application/json")) {
+                  const errorData = await response.json().catch(() => null);
+                  errorMessage = errorData?.error || JSON.stringify(errorData);
               } else {
-                  try {
-                      const textError = await response.text();
-                      console.error("Resposta do servidor (não-JSON):", textError);
-                      errorMessage = `O servidor retornou um erro inesperado. Verifique o console para detalhes.`;
-                  } catch (textErrorErr) {
-                       console.error("Não foi possível ler a resposta de erro como texto:", textErrorErr);
-                  }
+                  errorMessage = await response.text().catch(() => errorMessage);
               }
               throw new Error(errorMessage);
           }
-          
-          const contentType = response.headers.get("content-type");
-          if (contentType && contentType.indexOf("application/json") !== -1) {
+          if (response.headers.get("content-type")?.includes("application/json")) {
               return response.json();
           }
       };
@@ -399,13 +451,13 @@
 
       loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const username = document.getElementById('loginUsername').value;
-        const password = document.getElementById('loginPassword').value;
-        
         try {
             const data = await apiFetch('/auth/login', {
                 method: 'POST',
-                body: JSON.stringify({ username, password })
+                body: JSON.stringify({ 
+                    username: loginForm.loginUsername.value, 
+                    password: loginForm.loginPassword.value 
+                })
             });
             localStorage.setItem('authToken', data.token);
             localStorage.setItem('authUser', JSON.stringify(data.user));
@@ -424,18 +476,13 @@
              apiFetch('/notebooks'), 
              apiFetch('/reservas')
           ]);
-          
           allNotebooks = notebooksData;
-
           const notebooksVisiveis = allNotebooks.filter(n => n.status !== 'inativo');
-
           renderNotebooks(notebooksVisiveis, reservas);
           renderReservas(reservas);
-          
           if (getUser()?.role === 'admin') {
             renderGerenciarNotebooksList();
           }
-
         } catch (error) {
           if (error.message !== 'Não autorizado') {
              showNotification(`Erro ao carregar dados: ${error.message}`, 'danger');
@@ -457,35 +504,58 @@
 
       reservaForm.addEventListener("submit", async (event) => {
           event.preventDefault();
-          const responsavel = document.getElementById("responsavel").value;
+          const submitButton = event.submitter;
+          submitButton.disabled = true;
+          submitButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Reservando...`;
+
           const dataDevolucaoValue = document.getElementById("dataDevolucao").value;
-          const notebookId = parseInt(document.getElementById("notebookIdInput").value);
-          const dataDevolucao = new Date(dataDevolucaoValue + "T00:00:00");
           const hoje = new Date();
+          const dataDevolucao = new Date(dataDevolucaoValue + "T00:00:00");
           hoje.setHours(0, 0, 0, 0);
 
           if (dataDevolucao < hoje) {
               showNotification("A data de devolução não pode ser no passado.", 'warning');
+              submitButton.disabled = false;
+              submitButton.innerHTML = 'Confirmar Reserva';
               return;
           }
           dataDevolucao.setHours(23, 59, 59, 999);
+
           const reservaData = {
-              responsavel: responsavel,
+              responsavel: document.getElementById("responsavel").value,
               data_inicio: new Date().toISOString(),
               data_fim: dataDevolucao.toISOString(),
-              notebooks_ids: [notebookId],
+              notebooks_ids: Array.from(selectedNotebooks),
           };
           try {
-              await apiFetch('/reservas', {
-                  method: 'POST',
-                  body: JSON.stringify(reservaData)
-              });
+              await apiFetch('/reservas', { method: 'POST', body: JSON.stringify(reservaData) });
               reservaModal.hide();
               showNotification('Reserva criada com sucesso!', 'success');
+              selectedNotebooks.clear();
+              updateSelectionUI();
               loadData();
           } catch (error) {
               showNotification(`Erro ao criar reserva: ${error.message}`, 'danger');
+          } finally {
+              submitButton.disabled = false;
+              submitButton.innerHTML = 'Confirmar Reserva';
           }
+      });
+      
+      reserveSelectedBtn.addEventListener('click', () => {
+          const user = getUser();
+          document.getElementById('responsavel').value = `${user.nome} (${user.matricula || 'N/A'})`;
+          selectedNotebooksList.innerHTML = '';
+          selectedNotebooks.forEach(id => {
+              const notebook = allNotebooks.find(n => n.id === id);
+              if(notebook) {
+                  const item = document.createElement('div');
+                  item.className = 'list-group-item';
+                  item.textContent = `${notebook.nome} ${notebook.patrimonio ? '('+notebook.patrimonio+')' : ''}`;
+                  selectedNotebooksList.appendChild(item);
+              }
+          });
+          reservaModal.show();
       });
 
       // --- GERENCIAMENTO DE NOTEBOOKS ---
@@ -506,15 +576,10 @@
               patrimonio: document.getElementById('notebookPatrimonio').value,
               status: document.getElementById('notebookStatus').value,
           };
-
           const method = id ? 'PUT' : 'POST';
           const endpoint = id ? `/notebooks/${id}` : '/notebooks';
-
           try {
-              await apiFetch(endpoint, {
-                  method: method,
-                  body: JSON.stringify(notebookData)
-              });
+              await apiFetch(endpoint, { method, body: JSON.stringify(notebookData) });
               showNotification(`Notebook ${id ? 'atualizado' : 'cadastrado'} com sucesso!`, 'success');
               notebookFormModal.hide();
               gerenciarNotebooksModal.show();
@@ -524,30 +589,25 @@
           }
       });
       
-      window.handleEditNotebook = (notebookId) => {
-          const notebook = allNotebooks.find(n => n.id === notebookId);
+      window.handleEditNotebook = (id) => {
+          const notebook = allNotebooks.find(n => n.id === id);
           if (!notebook) return;
-
           notebookForm.reset();
-          document.getElementById('notebookEditId').value = notebook.id;
-          document.getElementById('notebookNome').value = notebook.nome;
-          document.getElementById('notebookPatrimonio').value = notebook.patrimonio || '';
-          document.getElementById('notebookStatus').value = notebook.status;
+          notebookForm.notebookEditId.value = notebook.id;
+          notebookForm.notebookNome.value = notebook.nome;
+          notebookForm.notebookPatrimonio.value = notebook.patrimonio || '';
+          notebookForm.notebookStatus.value = notebook.status;
           document.getElementById('notebookFormModalLabel').textContent = 'Editar Notebook';
-          
           gerenciarNotebooksModal.hide();
           notebookFormModal.show();
       };
       
-      window.handleDeleteNotebook = async (notebookId) => {
-          const notebook = allNotebooks.find(n => n.id === notebookId);
+      window.handleDeleteNotebook = async (id) => {
+          const notebook = allNotebooks.find(n => n.id === id);
           if (!notebook) return;
-
-          const confirmMessage = `Tem certeza que deseja marcar o notebook "${notebook.nome}" como inativo?`;
-          if (!confirm(confirmMessage)) return;
-
+          if (!confirm(`Tem certeza que deseja marcar o notebook "${notebook.nome}" como inativo?`)) return;
           try {
-              await apiFetch(`/notebooks/${notebookId}`, { method: 'DELETE' });
+              await apiFetch(`/notebooks/${id}`, { method: 'DELETE' });
               showNotification('Notebook inativado com sucesso.', 'success');
               loadData();
           } catch(error) {
@@ -555,27 +615,68 @@
           }
       };
       
+      // --- LÓGICA DO HISTÓRICO E USUÁRIOS ---
+      showHistoryBtn.addEventListener('click', async () => {
+          historyContainer.innerHTML = '<p class="text-center text-muted">Carregando histórico...</p>';
+          try {
+              const history = await apiFetch('/historico');
+              renderHistory(history);
+          } catch (error) {
+              showNotification('Erro ao carregar histórico.', 'danger');
+              historyContainer.innerHTML = '<p class="text-center text-danger">Falha ao carregar histórico.</p>';
+          }
+      });
+
+      showUsersBtn.addEventListener('click', async () => {
+          usersContainer.innerHTML = '<p class="text-center text-muted">Carregando usuários...</p>';
+          try {
+              const users = await apiFetch('/users');
+              renderUsers(users);
+          } catch (error) {
+              showNotification('Erro ao carregar usuários.', 'danger');
+              usersContainer.innerHTML = '<p class="text-center text-danger">Falha ao carregar usuários.</p>';
+          }
+      });
+      
       // --- FUNÇÕES DE RENDERIZAÇÃO E UI ---
+      
+      const toggleNotebookSelection = (id) => {
+          if (selectedNotebooks.has(id)) {
+              selectedNotebooks.delete(id);
+          } else {
+              selectedNotebooks.add(id);
+          }
+          updateSelectionUI();
+      };
+      
+      const updateSelectionUI = () => {
+          document.querySelectorAll('.notebook-card').forEach(card => {
+              const id = parseInt(card.dataset.id);
+              if (selectedNotebooks.has(id)) {
+                  card.classList.add('selected');
+              } else {
+                  card.classList.remove('selected');
+              }
+          });
+          const count = selectedNotebooks.size;
+          selectedCountBadge.textContent = count;
+          reservationCtaContainer.style.display = count > 0 ? 'block' : 'none';
+      };
 
       const updateUI = () => {
         const token = getToken();
         document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
-        
         if (token) {
           const user = getUser();
           loginView.style.display = 'none';
           appContent.style.display = 'block';
           authNavLinks.innerHTML = `
-            <span class="navbar-text me-3">
-              Olá, ${user.nome || user.username}
-            </span>
-            <button class="btn btn-outline-light" id="logoutBtn">Sair</button>
-          `;
+            <span class="navbar-text me-3">Olá, ${user.nome || user.username}</span>
+            <button class="btn btn-outline-light" id="logoutBtn">Sair</button>`;
           document.getElementById('logoutBtn').addEventListener('click', logout);
-          
           if (user.role === 'admin') {
-              document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'table-cell'); // Usar table-cell para colunas da tabela
-              document.getElementById('manageNotebooksBtn').style.display = 'block'; // Garante que o botão de gerenciar apareça
+              document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'table-cell');
+              document.getElementById('manageNotebooksBtn').style.display = 'block';
           }
           loadData();
         } else {
@@ -588,29 +689,19 @@
       const showNotification = (message, type = 'info') => {
         const toastContainer = document.getElementById('notification-area');
         const toastId = `toast-${Date.now()}`;
-        const toastHTML = `
-            <div id="${toastId}" class="toast align-items-center text-white bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="d-flex">
-                    <div class="toast-body">${message}</div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-                </div>
-            </div>
-        `;
+        const toastHTML = `<div id="${toastId}" class="toast align-items-center text-white bg-${type} border-0" role="alert"><div class="d-flex"><div class="toast-body">${message}</div><button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div></div>`;
         toastContainer.insertAdjacentHTML('beforeend', toastHTML);
-        const toastElement = document.getElementById(toastId);
-        const toast = new bootstrap.Toast(toastElement, { delay: 3000 });
+        const toast = new bootstrap.Toast(document.getElementById(toastId), { delay: 3000 });
         toast.show();
-        toastElement.addEventListener('hidden.bs.toast', () => toastElement.remove());
       };
 
       const renderNotebooks = (notebooks, reservas) => {
           const reservedUntilMap = new Map();
-          reservas.forEach((reserva) => {
+          reservas.forEach(reserva => {
               (reserva.notebooks || []).forEach(notebook => {
                    reservedUntilMap.set(notebook.id, new Date(reserva.data_fim));
               });
           });
-
           notebooksContainer.innerHTML = "";
           if (notebooks.length === 0) {
               notebooksContainer.innerHTML = '<p class="text-muted">Nenhum notebook disponível no momento.</p>';
@@ -619,8 +710,10 @@
           notebooks.forEach((notebook) => {
               const card = document.createElement("div");
               card.className = "notebook-card";
+              card.dataset.id = notebook.id;
               card.innerHTML = `
-                <img src="notebook.png" alt="Notebook">
+                <i class="bi bi-check-circle-fill selection-icon"></i>
+                <img src="https://placehold.co/400x300/e9ecef/495057?text=Notebook" alt="Notebook">
                 <div class="notebook-card-body">
                   <h5 class="notebook-card-title" title="${notebook.nome}">${notebook.nome}</h5>
                   <p class="notebook-card-text">${notebook.patrimonio ? `(${notebook.patrimonio})` : 'Sem patrimônio'}</p>
@@ -630,72 +723,39 @@
               const isAvailable = notebook.status === "disponivel" && !isReserved;
 
               if (isAvailable) {
-                  card.addEventListener("click", () => {
-                      const user = getUser();
-                      document.getElementById("responsavel").value = `${user.nome} (${user.matricula || 'N/A'})`;
-                      document.getElementById("notebookIdInput").value = notebook.id;
-                      document.getElementById("reservaModalLabel").textContent = `Reservar: ${notebook.nome}`;
-                      reservaModal.show();
-                  });
+                  card.addEventListener("click", () => toggleNotebookSelection(notebook.id));
               } else {
                   card.classList.add("disabled");
                   let title = `Status: ${notebook.status.replace("_", " ")}`;
-                  if (isReserved) {
-                      title = `Reservado até ${reservedUntilMap.get(notebook.id).toLocaleDateString("pt-BR")}`;
-                  }
+                  if (isReserved) title = `Reservado até ${reservedUntilMap.get(notebook.id).toLocaleDateString("pt-BR")}`;
                   card.setAttribute("title", title);
                   new bootstrap.Tooltip(card);
               }
               notebooksContainer.appendChild(card);
           });
+          updateSelectionUI();
       };
       
       const renderReservas = (reservas) => {
           reservasContainer.innerHTML = "";
           const activeReservas = reservas.filter(r => new Date(r.data_fim) > new Date());
           reservasPlaceholder.style.display = activeReservas.length > 0 ? "none" : "block";
-
           const user = getUser();
-
           activeReservas.forEach((reserva) => {
               const tr = document.createElement("tr");
-
-              const notebookDetails = (reserva.notebooks || [])
-                .map(reservaNotebook => {
-                    const fullNotebook = allNotebooks.find(nb => nb.id === reservaNotebook.id);
-                    const nome = fullNotebook ? fullNotebook.nome : 'Desconhecido';
-                    const patrimonio = fullNotebook ? fullNotebook.patrimonio : null;
-                    return `${nome} ${patrimonio ? `(${patrimonio})` : ''}`;
-                })
-                .join(', ');
-
+              const notebookDetails = (reserva.notebooks || []).map(nb => `${nb.nome} ${nb.patrimonio ? '('+nb.patrimonio+')' : ''}`).join(', ');
               const nomeCompleto = reserva.responsavel;
               const primeiroNome = nomeCompleto.split(' ')[0];
-
-              const deleteButtonHTML = user && user.role === 'admin'
-                ? `<button class="btn btn-danger btn-sm" onclick="cancelarReserva('${reserva.id}')" title="Cancelar Reserva">
-                     <i class="bi bi-trash-fill"></i>
-                   </button>`
-                : '';
-
+              const deleteButtonHTML = user && user.role === 'admin' ? `<button class="btn btn-danger btn-sm" onclick="cancelarReserva('${reserva.id}')" title="Cancelar Reserva"><i class="bi bi-trash-fill"></i></button>` : '';
               tr.innerHTML = `
-                  <td>
-                    <span data-bs-toggle="tooltip" data-bs-placement="top" title="${nomeCompleto}">
-                      ${primeiroNome}
-                    </span>
-                  </td>
+                  <td><span data-bs-toggle="tooltip" title="${nomeCompleto}">${primeiroNome}</span></td>
                   <td>${notebookDetails || 'N/A'}</td>
                   <td>${new Date(reserva.data_inicio).toLocaleString("pt-BR")}</td>
                   <td>${new Date(reserva.data_fim).toLocaleDateString("pt-BR")}</td>
-                  <td>${deleteButtonHTML}</td>
-              `;
+                  <td>${deleteButtonHTML}</td>`;
               reservasContainer.appendChild(tr);
           });
-
-          const tooltipTriggerList = [].slice.call(reservasContainer.querySelectorAll('[data-bs-toggle="tooltip"]'));
-          tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl);
-          });
+          [...reservasContainer.querySelectorAll('[data-bs-toggle="tooltip"]')].map(el => new bootstrap.Tooltip(el));
       };
       
       const renderGerenciarNotebooksList = () => {
@@ -704,17 +764,14 @@
               gerenciarNotebooksList.innerHTML = '<p class="text-center text-muted p-3">Nenhum notebook cadastrado.</p>';
               return;
           }
-
           allNotebooks.sort((a, b) => a.nome.localeCompare(b.nome)).forEach(notebook => {
               const item = document.createElement('div');
               item.className = 'list-group-item d-flex justify-content-between align-items-center';
-              
               const statusBadges = {
                   disponivel: '<span class="badge bg-success">Disponível</span>',
                   em_manutencao: '<span class="badge bg-warning text-dark">Manutenção</span>',
                   inativo: '<span class="badge bg-secondary">Inativo</span>'
               };
-
               item.innerHTML = `
                   <div>
                       <h6 class="mb-1">${notebook.nome}</h6>
@@ -722,16 +779,87 @@
                   </div>
                   <div class="d-flex align-items-center">
                       ${statusBadges[notebook.status] || ''}
-                      <button class="btn btn-outline-primary btn-sm ms-3" onclick="handleEditNotebook(${notebook.id})">
-                          <i class="bi bi-pencil-fill"></i>
-                      </button>
-                      <button class="btn btn-outline-danger btn-sm ms-2" onclick="handleDeleteNotebook(${notebook.id})">
-                          <i class="bi bi-trash-fill"></i>
-                      </button>
-                  </div>
-              `;
+                      <button class="btn btn-outline-primary btn-sm ms-3" onclick="handleEditNotebook(${notebook.id})"><i class="bi bi-pencil-fill"></i></button>
+                      <button class="btn btn-outline-danger btn-sm ms-2" onclick="handleDeleteNotebook(${notebook.id})"><i class="bi bi-trash-fill"></i></button>
+                  </div>`;
               gerenciarNotebooksList.appendChild(item);
           });
+      };
+      
+      const renderHistory = (history) => {
+          if (!history || history.length === 0) {
+              historyContainer.innerHTML = '<p class="text-center text-muted p-3">Nenhum registro no histórico.</p>';
+              return;
+          }
+          const table = document.createElement('table');
+          table.className = 'table table-sm table-bordered table-striped';
+          table.innerHTML = `
+            <thead>
+                <tr>
+                    <th>Ação</th>
+                    <th>Data</th>
+                    <th>Responsável</th>
+                    <th>Detalhes</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          `;
+          const tbody = table.querySelector('tbody');
+          history.forEach(entry => {
+              const tr = document.createElement('tr');
+              const actionClass = entry.action === 'RESERVA_CRIADA' ? 'text-success' : 'text-danger';
+              const notebooks = (entry.data.notebooks || []).map(n => `${n.nome} (${n.patrimonio || 'N/A'})`).join(', ');
+              const responsavel = entry.action === 'RESERVA_CANCELADA' 
+                  ? `${entry.data.responsavel} (Cancelado por: ${entry.data.canceledBy})`
+                  : entry.data.responsavel;
+              tr.innerHTML = `
+                <td><strong class="${actionClass}">${entry.action.replace(/_/g, ' ')}</strong></td>
+                <td>${new Date(entry.timestamp).toLocaleString('pt-BR')}</td>
+                <td>${responsavel}</td>
+                <td>${notebooks}</td>
+              `;
+              tbody.appendChild(tr);
+          });
+          historyContainer.innerHTML = '';
+          historyContainer.appendChild(table);
+      };
+
+      const renderUsers = (users) => {
+          if (!users || users.length === 0) {
+              usersContainer.innerHTML = '<p class="text-center text-muted p-3">Nenhum usuário cadastrado.</p>';
+              return;
+          }
+          const table = document.createElement('table');
+          table.className = 'table table-sm table-bordered table-striped';
+          table.innerHTML = `
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Matrícula</th>
+                    <th>Email</th>
+                    <th>Função</th>
+                    <th>Grupo</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+          `;
+          const tbody = table.querySelector('tbody');
+          users.forEach(user => {
+              const tr = document.createElement('tr');
+              const roleMap = { admin: 'Administrador', user: 'Usuário' };
+              const roleClass = user.role === 'admin' ? 'fw-bold text-danger' : '';
+              tr.innerHTML = `
+                <td>${user.nome}</td>
+                <td>${user.matricula || 'N/A'}</td>
+                <td>${user.email}</td>
+                <td>${user.funcao || 'N/A'}</td>
+                <td class="${roleClass}">${roleMap[user.role] || 'Desconhecido'}</td>
+              `;
+              tbody.appendChild(tr);
+          });
+          usersContainer.innerHTML = '';
+          usersContainer.appendChild(table);
       };
 
       // --- INICIALIZAÇÃO ---
