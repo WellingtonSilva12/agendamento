@@ -1,5 +1,191 @@
 [
   {
+    "action": "RESERVA_CANCELADA",
+    "timestamp": "2025-06-28T18:50:30.434Z",
+    "data": {
+      "id": "5288e879-b36f-452d-b657-d78058c0ad25",
+      "responsavel": "Larissa Pires dos Santos (1010)",
+      "data_inicio": "2025-06-28T18:48:33.119Z",
+      "data_fim": "2025-06-30T02:59:59.999Z",
+      "criado_em": "2025-06-28 18:48:33",
+      "atualizado_em": null,
+      "notebooks": [
+        {
+          "id": 7,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "1035",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": "2025-06-28 18:49:41",
+          "criado_em": "2025-06-25 23:49:08"
+        },
+        {
+          "id": 12,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "1041",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": null,
+          "criado_em": "2025-06-28 15:38:17"
+        }
+      ],
+      "canceledBy": "welladmin"
+    }
+  },
+  {
+    "action": "RESERVA_CANCELADA",
+    "timestamp": "2025-06-28T18:50:25.156Z",
+    "data": {
+      "id": "208f2e68-ed68-485e-ab00-9815b76e3506",
+      "responsavel": "Larissa Pires dos Santos (1010)",
+      "data_inicio": "2025-06-28T18:48:04.923Z",
+      "data_fim": "2025-07-01T02:59:59.999Z",
+      "criado_em": "2025-06-28 18:48:04",
+      "atualizado_em": null,
+      "notebooks": [
+        {
+          "id": 1,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "1039",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": "2025-06-28 15:37:34",
+          "criado_em": "2025-06-25 23:44:22"
+        },
+        {
+          "id": 3,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "1032",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": null,
+          "criado_em": "2025-06-25 23:48:51"
+        },
+        {
+          "id": 9,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "1037",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": null,
+          "criado_em": "2025-06-25 23:49:14"
+        }
+      ],
+      "canceledBy": "welladmin"
+    }
+  },
+  {
+    "action": "RESERVA_CRIADA",
+    "timestamp": "2025-06-28T18:48:33.433Z",
+    "data": {
+      "reservaId": "5288e879-b36f-452d-b657-d78058c0ad25",
+      "responsavel": "Larissa Pires dos Santos (1010)",
+      "data_inicio": "2025-06-28T18:48:33.119Z",
+      "data_fim": "2025-06-30T02:59:59.999Z",
+      "notebooks": [
+        {
+          "id": 7,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "1035",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": null,
+          "criado_em": "2025-06-25 23:49:08"
+        },
+        {
+          "id": 12,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "1041",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": null,
+          "criado_em": "2025-06-28 15:38:17"
+        }
+      ]
+    }
+  },
+  {
+    "action": "RESERVA_CRIADA",
+    "timestamp": "2025-06-28T18:48:04.955Z",
+    "data": {
+      "reservaId": "208f2e68-ed68-485e-ab00-9815b76e3506",
+      "responsavel": "Larissa Pires dos Santos (1010)",
+      "data_inicio": "2025-06-28T18:48:04.923Z",
+      "data_fim": "2025-07-01T02:59:59.999Z",
+      "notebooks": [
+        {
+          "id": 1,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "1039",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": "2025-06-28 15:37:34",
+          "criado_em": "2025-06-25 23:44:22"
+        },
+        {
+          "id": 3,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "1032",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": null,
+          "criado_em": "2025-06-25 23:48:51"
+        },
+        {
+          "id": 9,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "1037",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": null,
+          "criado_em": "2025-06-25 23:49:14"
+        }
+      ]
+    }
+  },
+  {
+    "action": "RESERVA_CANCELADA",
+    "timestamp": "2025-06-28T18:47:28.864Z",
+    "data": {
+      "id": "f75e8ea1-11ec-4356-88b3-8abe22b0abd2",
+      "responsavel": "Larissa Pires dos Santos (1010)",
+      "data_inicio": "2025-06-28T18:30:01.387Z",
+      "data_fim": "2025-06-30T02:59:59.999Z",
+      "criado_em": "2025-06-28 18:30:01",
+      "atualizado_em": null,
+      "notebooks": [
+        {
+          "id": 4,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "1031",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": null,
+          "criado_em": "2025-06-25 23:48:57"
+        },
+        {
+          "id": 5,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "1033",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": null,
+          "criado_em": "2025-06-25 23:49:01"
+        },
+        {
+          "id": 10,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "1038",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": null,
+          "criado_em": "2025-06-25 23:49:17"
+        }
+      ],
+      "canceledBy": "welladmin"
+    }
+  },
+  {
     "action": "RESERVA_CRIADA",
     "timestamp": "2025-06-28T18:30:01.429Z",
     "data": {

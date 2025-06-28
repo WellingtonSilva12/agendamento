@@ -130,8 +130,8 @@
 <body>
   <!-- BARRA DE NAVEGAÇÃO -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container-fluid">
-      <a class="navbar-brand fw-bold" href="#">Agendamentos</a>
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="#">NoteTrack</a>
       <div class="d-flex" id="auth-nav-links">
         <!-- Links de Login/Logout/Admin serão inseridos aqui -->
       </div>
@@ -152,7 +152,7 @@
         <div class="col-md-6 col-lg-5 col-xl-4">
           <div class="card shadow-sm">
             <div class="card-body p-4">
-              <h1 class="card-title text-center h3 mb-4">Acessar o Sistema</h1>
+              <h1 class="card-title text-center h3 mb-4">Login</h1>
               <form id="loginForm">
                 <div class="mb-3">
                   <label for="loginUsername" class="form-label">Usuário</label>
@@ -668,7 +668,7 @@
               card.dataset.id = notebook.id;
               card.innerHTML = `
                 <i class="bi bi-check-circle-fill selection-icon"></i>
-                <img src="https://placehold.co/400x300/e9ecef/495057?text=Notebook" alt="Notebook">
+                <img src="notebook.png" alt="Notebook">
                 <div class="notebook-card-body">
                   <h5 class="notebook-card-title" title="${notebook.nome}">${notebook.nome}</h5>
                   <p class="notebook-card-text">${notebook.patrimonio ? `(${notebook.patrimonio})` : 'Sem patrimônio'}</p>
