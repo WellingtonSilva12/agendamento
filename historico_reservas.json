@@ -1,6 +1,141 @@
 [
   {
     "action": "RESERVA_CRIADA",
+    "timestamp": "2025-06-28T18:30:01.429Z",
+    "data": {
+      "reservaId": "f75e8ea1-11ec-4356-88b3-8abe22b0abd2",
+      "responsavel": "Larissa Pires dos Santos (1010)",
+      "data_inicio": "2025-06-28T18:30:01.387Z",
+      "data_fim": "2025-06-30T02:59:59.999Z",
+      "notebooks": [
+        {
+          "id": 4,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "1031",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": null,
+          "criado_em": "2025-06-25 23:48:57"
+        },
+        {
+          "id": 5,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "1033",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": null,
+          "criado_em": "2025-06-25 23:49:01"
+        },
+        {
+          "id": 10,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "1038",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": null,
+          "criado_em": "2025-06-25 23:49:17"
+        }
+      ]
+    }
+  },
+  {
+    "action": "RESERVA_CANCELADA",
+    "timestamp": "2025-06-28T18:16:34.348Z",
+    "data": {
+      "id": "33aa14a6-9bad-4d57-8a90-70450a839a6e",
+      "responsavel": "Larissa Pires dos Santos (1010)",
+      "data_inicio": "2025-06-28T17:13:14.347Z",
+      "data_fim": "2025-06-30T02:59:59.999Z",
+      "criado_em": "2025-06-28 17:13:14",
+      "atualizado_em": null,
+      "notebooks": [
+        {
+          "id": 6,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "1034",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": null,
+          "criado_em": "2025-06-25 23:49:05"
+        },
+        {
+          "id": 10,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "1038",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": null,
+          "criado_em": "2025-06-25 23:49:17"
+        }
+      ],
+      "canceledBy": "welladmin"
+    }
+  },
+  {
+    "action": "RESERVA_CANCELADA",
+    "timestamp": "2025-06-28T18:16:31.517Z",
+    "data": {
+      "id": "ef954f3c-9842-40c2-98ce-c503d0b3bcf3",
+      "responsavel": "Wellington Admin (1002)",
+      "data_inicio": "2025-06-28T18:16:10.275Z",
+      "data_fim": "2025-07-01T02:59:59.999Z",
+      "criado_em": "2025-06-28 18:16:10",
+      "atualizado_em": null,
+      "notebooks": [
+        {
+          "id": 4,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "1031",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": null,
+          "criado_em": "2025-06-25 23:48:57"
+        },
+        {
+          "id": 5,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "1033",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": null,
+          "criado_em": "2025-06-25 23:49:01"
+        }
+      ],
+      "canceledBy": "welladmin"
+    }
+  },
+  {
+    "action": "RESERVA_CRIADA",
+    "timestamp": "2025-06-28T18:16:10.306Z",
+    "data": {
+      "reservaId": "ef954f3c-9842-40c2-98ce-c503d0b3bcf3",
+      "responsavel": "Wellington Admin (1002)",
+      "data_inicio": "2025-06-28T18:16:10.275Z",
+      "data_fim": "2025-07-01T02:59:59.999Z",
+      "notebooks": [
+        {
+          "id": 4,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "1031",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": null,
+          "criado_em": "2025-06-25 23:48:57"
+        },
+        {
+          "id": 5,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "1033",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": null,
+          "criado_em": "2025-06-25 23:49:01"
+        }
+      ]
+    }
+  },
+  {
+    "action": "RESERVA_CRIADA",
     "timestamp": "2025-06-28T17:13:14.392Z",
     "data": {
       "reservaId": "33aa14a6-9bad-4d57-8a90-70450a839a6e",

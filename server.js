@@ -122,6 +122,9 @@ async function logToHistory(action, data) {
     }
 }
 
+// --- Constantes ---
+const STATUS_VALIDOS = ['disponivel', 'em_manutencao', 'inativo'];
+
 // --- Middleware de Autenticação ---
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
@@ -179,13 +182,12 @@ app.post('/api/auth/login', async (req, res) => {
     }
 });
 
-// --- Rota de Usuários (NOVA) ---
+// --- Rota de Usuários ---
 app.get('/api/users', authenticateToken, async (req, res) => {
     if (req.user.role !== 'admin') {
         return res.status(403).json({ error: 'Acesso negado.' });
     }
     try {
-        // Seleciona todos os campos, exceto a senha
         const users = await dbAll("SELECT id, username, nome, matricula, email, funcao, role FROM users");
         res.json(users);
     } catch (error) {
@@ -210,16 +212,16 @@ app.post('/api/notebooks', authenticateToken, async (req, res) => {
     const { nome, patrimonio, status = 'disponivel' } = req.body;
     if (!nome) return res.status(400).json({ error: 'Nome é obrigatório.' });
     if (!STATUS_VALIDOS.includes(status)) return res.status(400).json({ error: 'Status inválido.' });
-    if (patrimonio) {
-        const existente = await dbGet("SELECT id FROM notebooks WHERE patrimonio = ? AND patrimonio IS NOT NULL AND patrimonio != ''", [patrimonio]);
-        if (existente) return res.status(409).json({ error: 'Patrimônio já cadastrado.' });
+    if (patrimonio && patrimonio.trim()) {
+        const existente = await dbGet("SELECT id FROM notebooks WHERE patrimonio = ?", [patrimonio.trim()]);
+        if (existente) return res.status(409).json({ error: 'Este patrimônio já está cadastrado.' });
     }
-    const result = await dbRun("INSERT INTO notebooks (nome, patrimonio, status) VALUES (?, ?, ?)", [nome, patrimonio, status]);
+    const result = await dbRun("INSERT INTO notebooks (nome, patrimonio, status) VALUES (?, ?, ?)", [nome, patrimonio || null, status]);
     const novoNotebook = await dbGet("SELECT * FROM notebooks WHERE id = ?", [result.lastID]);
     res.status(201).json(novoNotebook);
   } catch (err) {
     console.error('Erro ao criar notebook:', err);
-    res.status(500).json({ error: 'Erro interno.' });
+    res.status(500).json({ error: 'Erro interno ao criar notebook' });
   }
 });
 
@@ -232,16 +234,29 @@ app.put('/api/notebooks/:id', authenticateToken, async (req, res) => {
     if (!notebook) return res.status(404).json({ error: 'Notebook não encontrado.' });
     if (!nome) return res.status(400).json({ error: 'Nome é obrigatório.' });
     if (!STATUS_VALIDOS.includes(status)) return res.status(400).json({ error: 'Status inválido.' });
-    if (patrimonio && patrimonio !== notebook.patrimonio) {
-        const existente = await dbGet("SELECT id FROM notebooks WHERE patrimonio = ? AND patrimonio IS NOT NULL AND patrimonio != ''", [patrimonio]);
-        if (existente) return res.status(409).json({ error: 'Patrimônio já cadastrado.' });
+
+    const finalPatrimonio = (patrimonio && patrimonio.trim()) ? patrimonio.trim() : null;
+
+    if (finalPatrimonio && finalPatrimonio !== notebook.patrimonio) {
+        const existente = await dbGet("SELECT id FROM notebooks WHERE patrimonio = ? AND id != ?", [finalPatrimonio, id]);
+        if (existente) return res.status(409).json({ error: 'Este patrimônio já está cadastrado em outro notebook.' });
     }
-    await dbRun("UPDATE notebooks SET nome = ?, patrimonio = ?, status = ?, atualizado_em = datetime('now') WHERE id = ?", [nome, patrimonio, status, id]);
+
+    const inativado_em = (notebook.status === 'inativo' && status !== 'inativo') ? null : notebook.inativado_em;
+
+    await dbRun(
+      "UPDATE notebooks SET nome = ?, patrimonio = ?, status = ?, atualizado_em = datetime('now'), inativado_em = ? WHERE id = ?", 
+      [nome, finalPatrimonio, status, inativado_em, id]
+    );
+
     const notebookAtualizado = await dbGet("SELECT * FROM notebooks WHERE id = ?", [id]);
     res.json(notebookAtualizado);
   } catch (err) {
       console.error('Erro ao atualizar notebook:', err);
-      res.status(500).json({ error: 'Erro interno.' });
+       if (err.code === 'SQLITE_CONSTRAINT') {
+          return res.status(409).json({ error: 'Conflito de dados. O patrimônio pode já estar em uso.' });
+      }
+      res.status(500).json({ error: 'Erro interno ao atualizar notebook' });
   }
 });
 
@@ -251,11 +266,17 @@ app.delete('/api/notebooks/:id', authenticateToken, async (req, res) => {
     const { id } = req.params;
     const notebook = await dbGet("SELECT * FROM notebooks WHERE id = ?", [id]);
     if (!notebook) return res.status(404).json({ error: 'Notebook não encontrado.' });
+    
+    const reservasAtivas = await dbGet("SELECT COUNT(*) as count FROM reserva_notebooks rn JOIN reservas r ON rn.reserva_id = r.id WHERE rn.notebook_id = ? AND r.data_fim > datetime('now')", [id]);
+    if (reservasAtivas.count > 0) {
+        return res.status(409).json({ error: 'Este notebook possui reservas ativas e não pode ser inativado.' });
+    }
+    
     await dbRun("UPDATE notebooks SET status = 'inativo', inativado_em = datetime('now') WHERE id = ?", [id]);
     res.status(200).json({ message: 'Notebook marcado como inativo.' });
   } catch (err) {
       console.error('Erro ao inativar notebook:', err);
-      res.status(500).json({ error: 'Erro interno.' });
+      res.status(500).json({ error: 'Erro interno ao inativar notebook' });
   }
 });
 
@@ -293,7 +314,7 @@ app.post('/api/reservas', async (req, res) => {
     res.status(201).json({ message: 'Reserva criada com sucesso!' });
   } catch (err) {
     console.error('Erro ao criar reserva:', err);
-    res.status(500).json({ error: 'Erro interno.' });
+    res.status(500).json({ error: 'Erro interno ao criar reserva' });
   }
 });
 
@@ -308,7 +329,7 @@ app.get('/api/reservas', async (req, res) => {
     res.json(reservasFormatadas);
   } catch (err) {
     console.error('Erro ao buscar reservas:', err);
-    res.status(500).json({ error: 'Erro interno.' });
+    res.status(500).json({ error: 'Erro interno ao buscar reservas' });
   }
 });
 
@@ -323,7 +344,7 @@ app.delete('/api/reservas/:id', async (req, res) => {
     res.status(200).json({ message: 'Reserva cancelada com sucesso' });
   } catch (err) {
     console.error('Erro ao cancelar reserva:', err);
-    res.status(500).json({ error: 'Erro interno.' });
+    res.status(500).json({ error: 'Erro interno ao cancelar reserva' });
   }
 });
 
