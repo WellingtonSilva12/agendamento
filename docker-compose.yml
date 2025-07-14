@@ -1,0 +1,32 @@
+# Define a versão do Docker Compose a ser utilizada
+version: '3.8'
+
+# Define os serviços (contentores) que compõem a aplicação
+services:
+  # Serviço do backend
+  backend:
+    # Constrói a imagem a partir do Dockerfile localizado na pasta ./backend
+    build: ./backend
+    # Mapeia a porta 5000 do contentor para a porta 5000 da máquina anfitriã
+    # (útil para debug, mas não estritamente necessário para a comunicação entre contentores)
+    ports:
+      - "5000:5000"
+    # Define um volume para persistir os dados do banco de dados
+    volumes:
+      - db-data:/usr/src/app/agendamentos.db
+
+  # Serviço do frontend
+  frontend:
+    # Constrói a imagem a partir do Dockerfile localizado na pasta ./frontend
+    build: ./frontend
+    # Mapeia a porta 80 do contentor para a porta 80 da máquina anfitriã
+    # Isto permite aceder à aplicação em http://localhost
+    ports:
+      - "80:80"
+    # Garante que o serviço de backend seja iniciado antes do frontend
+    depends_on:
+      - backend
+
+# Declara os volumes nomeados para persistência de dados
+volumes:
+  db-data:
