@@ -1,28 +1,24 @@
-// index.js
-require('dotenv').config(); // Carrega variáveis do .env
+
+require('dotenv').config(); 
 const express = require('express');
 const cors = require('cors');
-const { db } = require('./config/database');
+const { db } = require('./backend/config/database');
 
-// Importar rotas
-const authRoutes = require('./routes/authRoutes');
-const notebookRoutes = require('./routes/notebookRoutes');
-const reservaRoutes = require('./routes/reservaRoutes');
-const userRoutes = require('./routes/userRoutes');
+const authRoutes = require('./backend/routes/authRoutes');
+const notebookRoutes = require('./backend/routes/notebookRoutes');
+const reservaRoutes = require('./backend/routes/reservaRoutes');
+const userRoutes = require('./backend/routes/userRoutes');
 
 const app = express();
 
-// Middlewares globais
 app.use(cors());
 app.use(express.json());
 
-// Usar as rotas
 app.use('/api/auth', authRoutes);
 app.use('/api/notebooks', notebookRoutes);
 app.use('/api/reservas', reservaRoutes);
-app.use('/api', userRoutes); // Para /users e /historico
+app.use('/api', userRoutes); 
 
-// --- Server Start e Shutdown ---
 const PORT = process.env.PORT || 5000;
 const server = app.listen(PORT, () => {
   console.log(`\nServidor rodando em http://localhost:${PORT}`);

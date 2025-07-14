@@ -1,7 +1,6 @@
-// config/database.js
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
-const dbPath = path.join(__dirname, '..', 'agendamentos.db'); // Ajusta o caminho
+const dbPath = path.join(__dirname, '..', 'agendamentos.db'); 
 
 const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
@@ -60,7 +59,6 @@ function initializeDb() {
   });
 }
 
-// Funções Auxiliares Promissificadas
 function dbAll(query, params = []) {
   return new Promise((resolve, reject) => {
     db.all(query, params, (err, rows) => {
