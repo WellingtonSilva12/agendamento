@@ -1,801 +1,356 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agendamento de Notebooks</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Agendamento de Notebooks</title>
-  <!-- Bootstrap CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <!-- Bootstrap Icons -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
-  <!-- Google Fonts: Inter -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-
-  <style>
-    body {
-      font-family: "Inter", sans-serif;
-      background-color: #f8f9fa;
-    }
-
-    .main-container {
-      padding-top: 2rem;
-      padding-bottom: 4rem;
-    }
-
-    h1, h2 {
-      font-weight: 700;
-      color: #343a40;
-      margin-bottom: 1.5rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 2px solid #dee2e6;
-    }
-
-    #notebooks-container {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 1.5rem;
-    }
-
-    .notebook-card {
-      width: 220px;
-      border: 1px solid #dee2e6;
-      border-radius: 0.75rem;
-      overflow: hidden;
-      transition: all 0.2s ease-in-out;
-      cursor: pointer;
-      background-color: #fff;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-      position: relative; /* Adicionado para posicionamento do ícone */
-    }
-
-    .notebook-card:hover:not(.disabled) {
-      transform: translateY(-5px);
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-    }
-    
-    /* Estilo para card selecionado */
-    .notebook-card.selected {
-        border-color: #0d6efd; /* Cor primária do Bootstrap */
-        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
-    }
-
-    /* Ícone de seleção */
-    .selection-icon {
-        display: none;
-        position: absolute;
-        top: 8px;
-        right: 8px;
-        font-size: 1.75rem;
-        color: #0d6efd;
-        background-color: white;
-        border-radius: 50%;
-        padding: 0;
-        line-height: 1;
-    }
-    
-    .notebook-card.selected .selection-icon {
-        display: block;
-    }
-
-    .notebook-card.disabled {
-      cursor: not-allowed;
-      filter: grayscale(80%);
-      opacity: 0.65;
-    }
-
-    .notebook-card img {
-      display: block;
-      margin: 1rem auto 0;
-      width: 80%;
-      height: 120px;
-      object-fit: contain;
-    }
-
-    .notebook-card-body {
-      padding: 1rem;
-      text-align: center;
-    }
-
-    .notebook-card-title {
-      font-size: 1rem;
-      font-weight: 600;
-      color: #212529;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .notebook-card-text {
-      font-size: 0.875rem;
-      color: #6c757d;
-    }
-
-    .table {
-      background-color: #ffffff;
-      border-radius: 0.5rem;
-      overflow: hidden;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    }
-    
-    .logged-out-view { display: block; }
-    .logged-in-view { display: none; }
-    .admin-only-flex { display: none !important; } /* Usado para dropdown */
-  </style>
-</head>
-
-<body>
-  <!-- BARRA DE NAVEGAÇÃO -->
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container">
-      <a class="navbar-brand fw-bold" href="#">NoteTrack</a>
-      <div class="d-flex" id="auth-nav-links">
-        <!-- Links de Login/Logout/Admin serão inseridos aqui -->
+  <body id="body-hidden">
+    <nav id="navbar" class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container">
+        <a class="navbar-brand fw-bold" href="#">NoteTrack</a>
+        <div class="d-flex" id="auth-nav-links">
+          </div>
       </div>
-    </div>
-  </nav>
+    </nav>
 
-  <!-- NOTIFICAÇÃO DE ERRO/SUCESSO -->
-  <div id="notification-area" class="position-fixed top-0 end-0 p-3" style="z-index: 1200">
-    <!-- Toasts serão adicionados aqui -->
-  </div>
+    <div
+      id="notification-area"
+      class="position-fixed top-0 end-0 p-3"
+      style="z-index: 1200"
+    >
+      </div>
 
-  <!-- CONTEÚDO PRINCIPAL -->
-  <div class="container main-container">
-    
-    <!-- TELA DE LOGIN (VISÍVEL QUANDO DESLOGADO) -->
-    <div id="login-view" class="logged-out-view">
-      <div class="row justify-content-center mt-4">
-        <div class="col-md-6 col-lg-5 col-xl-4">
-          <div class="card shadow-sm">
-            <div class="card-body p-4">
-              <h1 class="card-title text-center h3 mb-4">Login</h1>
-              <form id="loginForm">
-                <div class="mb-3">
-                  <label for="loginUsername" class="form-label">Usuário</label>
-                  <input type="text" class="form-control" id="loginUsername" required>
-                </div>
-                <div class="mb-3">
-                  <label for="loginPassword" class="form-label">Senha</label>
-                  <input type="password" class="form-control" id="loginPassword" required>
-                </div>
-                <div class="d-grid mt-4">
-                   <button type="submit" class="btn btn-primary btn-block">Entrar</button>
-                </div>
-              </form>
+    <div class="container main-container">
+      <div id="login-view" class="logged-out-view">
+        <div class="row justify-content-center align-items-center min-vh-100">
+          <div class="col-md-6 col-lg-5 col-xl-4">
+            <div class="card shadow-sm" style="width: 32rem">
+              <div class="card-body p-5">
+                <h1 class="card-title h2 mb-5">Faça o seu login</h1>
+                <form id="loginForm">
+                  <div class="form-floating mb-3">
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="loginUsername"
+                      placeholder="Usuário"
+                      required
+                    />
+                    <label for="loginUsername">Usuário</label>
+                  </div>
+                  <div class="form-floating mb-3">
+                    <input
+                      type="password"
+                      class="form-control"
+                      id="loginPassword"
+                      placeholder="Senha"
+                      required
+                    />
+                    <label for="loginPassword">Senha</label>
+                  </div>
+                  <div class="d-grid mt-4">
+                    <button type="submit" class="p-3 btn btn-primary btn-block">
+                      Entrar
+                    </button>
+                  </div>
+                </form>
+                <p class="mt-3">
+                  <span class="fw-bold h6">Esqueceu a senha?</span> Entre em
+                  contato com a equipe de suporte.
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- CONTEÚDO DA APLICAÇÃO (VISÍVEL QUANDO LOGADO) -->
-    <div id="app-content" class="logged-in-view">
-      <header class="text-center mb-5">
-        <h1>Notebooks Disponíveis</h1>
-      </header>
-      
-      <section id="notebooks-section">
-        <div id="notebooks-container" class="p-3 bg-light rounded shadow-sm min-vh-25">
-          <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Carregando...</span>
+      <div id="app-content" class="logged-in-view">
+        <header class="text-center mb-5">
+          <h1>Notebooks Disponíveis</h1>
+        </header>
+
+        <section id="notebooks-section">
+          <div
+            id="notebooks-container"
+            class="p-3 bg-light rounded shadow-sm min-vh-25"
+          >
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Carregando...</span>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <section id="reservas-section" class="mt-5">
-        <div class="d-flex justify-content-between align-items-center">
+        <section id="reservas-section" class="mt-5">
+          <div class="d-flex justify-content-between align-items-center">
             <h2>Minhas Reservas Ativas</h2>
-        </div>
-        <div class="table-responsive">
-          <table class="table table-striped table-hover align-middle">
-            <thead>
-              <tr>
-                <th scope="col">Responsável</th>
-                <th scope="col">Notebook(s)</th>
-                <th scope="col">Data da Reserva</th>
-                <th scope="col">Data da Devolução</th>
-                <th id="reservas-actions-header" class="admin-only-flex">Ações</th>
-              </tr>
-            </thead>
-            <tbody id="reservas-container"></tbody>
-          </table>
-          <div id="reservas-placeholder" class="text-center p-4 bg-white rounded shadow-sm">
-            <p class="text-muted">Nenhuma reserva ativa no momento.</p>
           </div>
-        </div>
-      </section>
+          <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle">
+              <thead>
+                <tr>
+                  <th scope="col">Responsável</th>
+                  <th scope="col">Notebook(s)</th>
+                  <th scope="col">Data da Reserva</th>
+                  <th scope="col">Data da Devolução</th>
+                  <th id="reservas-actions-header" class="admin-only-flex">
+                    Ações
+                  </th>
+                </tr>
+              </thead>
+              <tbody id="reservas-container"></tbody>
+            </table>
+            <div
+              id="reservas-placeholder"
+              class="text-center p-4 bg-white rounded shadow-sm"
+            >
+              <p class="text-muted">Nenhuma reserva ativa no momento.</p>
+            </div>
+          </div>
+        </section>
+      </div>
     </div>
-  </div>
-  
-  <!-- BOTÃO FLUTUANTE DE RESERVA -->
-  <div id="reservation-cta-container" class="position-fixed bottom-0 end-0 p-3" style="display: none;">
+
+    <div
+      id="reservation-cta-container"
+      class="position-fixed bottom-0 end-0 p-3"
+      style="display: none"
+    >
       <button id="reserveSelectedBtn" class="btn btn-primary btn-lg shadow-lg">
-          <i class="bi bi-calendar-plus me-2"></i>
-          Reservar Selecionados 
-          <span id="selected-count-badge" class="badge bg-light text-primary ms-2 rounded-pill">0</span>
+        <i class="bi bi-calendar-plus me-2"></i>
+        Reservar Selecionados
+        <span
+          id="selected-count-badge"
+          class="badge bg-light text-primary ms-2 rounded-pill"
+          >0</span
+        >
       </button>
-  </div>
+    </div>
 
-
-  <!-- MODAIS -->
-  <!-- Modal de Reserva -->
-  <div class="modal fade" id="reservaModal" tabindex="-1">
+    <div class="modal fade" id="reservaModal" tabindex="-1">
       <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content">
-              <div class="modal-header bg-primary text-white">
-                  <h5 class="modal-title" id="reservaModalLabel">Confirmar Reserva</h5>
-                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <div class="modal-content">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title" id="reservaModalLabel">
+              Confirmar Reserva
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="reservaForm">
+              <div class="mb-3">
+                <label class="form-label">Notebooks Selecionados:</label>
+                <div id="selectedNotebooksList" class="list-group">
+                  </div>
               </div>
-              <div class="modal-body">
-                  <form id="reservaForm">
-                      <div class="mb-3">
-                        <label class="form-label">Notebooks Selecionados:</label>
-                        <div id="selectedNotebooksList" class="list-group">
-                            <!-- Lista de notebooks selecionados será inserida aqui -->
-                        </div>
-                      </div>
-                      <div class="mb-3">
-                          <label for="responsavel" class="form-label">Responsável</label>
-                          <input type="text" class="form-control" id="responsavel" required readonly />
-                      </div>
-                      <div class="mb-3">
-                          <label for="dataDevolucao" class="form-label">Data da Devolução</label>
-                          <input type="date" class="form-control" id="dataDevolucao" required />
-                      </div>
-                      <div class="d-grid">
-                          <button type="submit" class="btn btn-primary">Confirmar Reserva</button>
-                      </div>
-                  </form>
+              <div class="mb-3">
+                <label for="responsavel" class="form-label">Responsável</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="responsavel"
+                  required
+                  readonly
+                />
+              </div>
+              <div class="mb-3">
+                <label for="dataDevolucao" class="form-label"
+                  >Data da Devolução</label
+                >
+                <input
+                  type="date"
+                  class="form-control"
+                  id="dataDevolucao"
+                  required
+                />
+              </div>
+              <div class="d-grid">
+                <button type="submit" class="btn btn-primary">
+                  Confirmar Reserva
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="gerenciarNotebooksModal" tabindex="-1">
+      <div
+        class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"
+      >
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Gerenciar Notebooks</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div id="gerenciar-notebooks-list" class="list-group mb-4">
               </div>
           </div>
-      </div>
-  </div>
-
-  <!-- Modal de Gerenciamento de Notebooks -->
-  <div class="modal fade" id="gerenciarNotebooksModal" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Gerenciar Notebooks</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-            <div id="gerenciar-notebooks-list" class="list-group mb-4">
-                <!-- Lista de notebooks será inserida aqui -->
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-            <button id="addNotebookBtn" type="button" class="btn btn-primary">
-                <i class="bi bi-plus-circle me-2"></i>Cadastrar Novo
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Fechar
             </button>
+            <button id="addNotebookBtn" type="button" class="btn btn-primary">
+              <i class="bi bi-plus-circle me-2"></i>Cadastrar Novo
+            </button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-  
-    <!-- Modal de Gerenciamento de Usuários -->
+
     <div class="modal fade" id="gerenciarUsuariosModal" tabindex="-1">
-        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Gerenciar Usuários</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div id="users-container" class="table-responsive">
-                        <!-- Tabela de usuários será inserida aqui -->
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-  
-  <!-- Modal de Histórico de Reservas -->
-  <div class="modal fade" id="historicoModal" tabindex="-1">
-    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+      <div
+        class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable"
+      >
         <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Gerenciar Usuários</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div id="users-container" class="table-responsive">
+              </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Fechar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="historicoModal" tabindex="-1">
+      <div
+        class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable"
+      >
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Histórico de Reservas</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div id="history-container" class="table-responsive">
+              <p class="text-center text-muted">Carregando histórico...</p>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Fechar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="notebookFormModal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <form id="notebookForm">
             <div class="modal-header">
-                <h5 class="modal-title">Histórico de Reservas</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              <h5 class="modal-title" id="notebookFormModalLabel">
+                Cadastrar Notebook
+              </h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+              ></button>
             </div>
             <div class="modal-body">
-                <div id="history-container" class="table-responsive">
-                    <p class="text-center text-muted">Carregando histórico...</p>
-                </div>
+              <input type="hidden" id="notebookEditId" />
+              <div class="mb-3">
+                <label for="notebookNome" class="form-label"
+                  >Nome / Modelo</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="notebookNome"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="notebookPatrimonio" class="form-label"
+                  >Patrimônio</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="notebookPatrimonio"
+                />
+              </div>
+              <div class="mb-3">
+                <label for="notebookStatus" class="form-label">Status</label>
+                <select class="form-select" id="notebookStatus" required>
+                  <option value="disponivel">Disponível</option>
+                  <option value="em_manutencao">Em Manutenção</option>
+                  <option value="inativo">Inativo</option>
+                </select>
+              </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Cancelar
+              </button>
+              <button type="submit" class="btn btn-success">Salvar</button>
             </div>
+          </form>
         </div>
+      </div>
     </div>
-  </div>
 
-
-  <!-- Modal de Formulário de Notebook -->
-  <div class="modal fade" id="notebookFormModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <form id="notebookForm">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="notebookFormModalLabel">Cadastrar Notebook</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" id="notebookEditId">
-                    <div class="mb-3">
-                        <label for="notebookNome" class="form-label">Nome / Modelo</label>
-                        <input type="text" class="form-control" id="notebookNome" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="notebookPatrimonio" class="form-label">Patrimônio</label>
-                        <input type="text" class="form-control" id="notebookPatrimonio">
-                    </div>
-                    <div class="mb-3">
-                        <label for="notebookStatus" class="form-label">Status</label>
-                        <select class="form-select" id="notebookStatus" required>
-                            <option value="disponivel">Disponível</option>
-                            <option value="em_manutencao">Em Manutenção</option>
-                            <option value="inativo">Inativo</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-success">Salvar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-  </div>
-
-
-  <!-- SCRIPTS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const API_URL = "http://localhost:5000/api";
-
-      // Elementos da UI
-      const loginView = document.getElementById('login-view');
-      const appContent = document.getElementById('app-content');
-      const authNavLinks = document.getElementById('auth-nav-links');
-      const notebooksContainer = document.getElementById("notebooks-container");
-      const reservasContainer = document.getElementById("reservas-container");
-      const reservasPlaceholder = document.getElementById("reservas-placeholder");
-      const gerenciarNotebooksList = document.getElementById("gerenciar-notebooks-list");
-      const reservationCtaContainer = document.getElementById('reservation-cta-container');
-      const reserveSelectedBtn = document.getElementById('reserveSelectedBtn');
-      const selectedCountBadge = document.getElementById('selected-count-badge');
-      const selectedNotebooksList = document.getElementById('selectedNotebooksList');
-      const historyContainer = document.getElementById('history-container');
-      const usersContainer = document.getElementById('users-container');
-      const reservasActionsHeader = document.getElementById('reservas-actions-header');
-      
-      // Modais
-      const reservaModal = new bootstrap.Modal(document.getElementById("reservaModal"));
-      const gerenciarNotebooksModal = new bootstrap.Modal(document.getElementById("gerenciarNotebooksModal"));
-      const notebookFormModal = new bootstrap.Modal(document.getElementById("notebookFormModal"));
-      const gerenciarUsuariosModal = new bootstrap.Modal(document.getElementById("gerenciarUsuariosModal"));
-      const historicoModal = new bootstrap.Modal(document.getElementById("historicoModal"));
-      
-      // Formulários e Botões
-      const reservaForm = document.getElementById("reservaForm");
-      const loginForm = document.getElementById("loginForm");
-      const notebookForm = document.getElementById("notebookForm");
-      const addNotebookBtn = document.getElementById("addNotebookBtn");
-      
-      let allNotebooks = [];
-      let selectedNotebooks = new Set();
-
-      // --- GERENCIAMENTO DE AUTENTICAÇÃO ---
-      const getToken = () => localStorage.getItem('authToken');
-      const getUser = () => JSON.parse(localStorage.getItem('authUser'));
-      const logout = () => {
-          localStorage.removeItem('authToken');
-          localStorage.removeItem('authUser');
-          updateUI();
-      };
-      
-      const apiFetch = async (endpoint, options = {}) => {
-          const token = getToken();
-          const headers = { 'Content-Type': 'application/json', ...options.headers };
-          if (token) headers['Authorization'] = `Bearer ${token}`;
-          const response = await fetch(`${API_URL}${endpoint}`, { ...options, headers });
-          if ([401, 403].includes(response.status)) {
-              logout();
-              showNotification('Sua sessão expirou. Por favor, faça login novamente.', 'danger');
-              throw new Error('Não autorizado');
-          }
-          if (!response.ok) {
-              const contentType = response.headers.get("content-type");
-              let errorMessage = `Erro ${response.status}: ${response.statusText}`;
-              if (contentType?.includes("application/json")) {
-                  const errorData = await response.json().catch(() => null);
-                  errorMessage = errorData?.error || JSON.stringify(errorData);
-              } else {
-                  errorMessage = await response.text().catch(() => errorMessage);
-              }
-              throw new Error(errorMessage);
-          }
-          if (response.headers.get("content-type")?.includes("application/json")) {
-              return response.json();
-          }
-      };
-
-      // --- LÓGICA DE LOGIN ---
-      loginForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        try {
-            const data = await apiFetch('/auth/login', {
-                method: 'POST',
-                body: JSON.stringify({ username: loginForm.loginUsername.value, password: loginForm.loginPassword.value })
-            });
-            localStorage.setItem('authToken', data.token);
-            localStorage.setItem('authUser', JSON.stringify(data.user));
-            showNotification('Login realizado com sucesso!', 'success');
-            updateUI();
-        } catch (error) {
-            showNotification(`Erro no login: ${error.message}`, 'danger');
-        }
-      });
-      
-      // --- LÓGICA DA APLICAÇÃO ---
-      const loadData = async () => {
-        try {
-          const [notebooksData, reservas] = await Promise.all([apiFetch('/notebooks'), apiFetch('/reservas')]);
-          allNotebooks = notebooksData;
-          const notebooksVisiveis = allNotebooks.filter(n => n.status !== 'inativo');
-          renderNotebooks(notebooksVisiveis, reservas);
-          renderReservas(reservas);
-          if (getUser()?.role === 'admin') renderGerenciarNotebooksList();
-        } catch (error) {
-          if (error.message !== 'Não autorizado') {
-             showNotification(`Erro ao carregar dados: ${error.message}`, 'danger');
-             notebooksContainer.innerHTML = '<p class="text-danger">Erro ao carregar dados.</p>';
-          }
-        }
-      };
-      
-      window.cancelarReserva = async (reservaId) => {
-          if (!confirm("Tem certeza que deseja cancelar esta reserva?")) return;
-          try {
-              await apiFetch(`/reservas/${reservaId}`, { method: 'DELETE' });
-              showNotification('Reserva cancelada com sucesso!', 'success');
-              loadData();
-          } catch (error) {
-              showNotification(`Erro ao cancelar reserva: ${error.message}`, 'danger');
-          }
-      };
-
-      reservaForm.addEventListener("submit", async (event) => {
-          event.preventDefault();
-          const submitButton = event.submitter;
-          submitButton.disabled = true;
-          submitButton.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Reservando...`;
-          const hoje = new Date();
-          hoje.setHours(0, 0, 0, 0);
-          const dataDevolucao = new Date(reservaForm.dataDevolucao.value + "T00:00:00");
-          if (dataDevolucao < hoje) {
-              showNotification("A data de devolução não pode ser no passado.", 'warning');
-              submitButton.disabled = false;
-              submitButton.innerHTML = 'Confirmar Reserva';
-              return;
-          }
-          dataDevolucao.setHours(23, 59, 59, 999);
-          const reservaData = {
-              responsavel: reservaForm.responsavel.value,
-              data_inicio: new Date().toISOString(),
-              data_fim: dataDevolucao.toISOString(),
-              notebooks_ids: Array.from(selectedNotebooks),
-          };
-          try {
-              await apiFetch('/reservas', { method: 'POST', body: JSON.stringify(reservaData) });
-              reservaModal.hide();
-              showNotification('Reserva criada com sucesso!', 'success');
-              selectedNotebooks.clear();
-              updateSelectionUI();
-              loadData();
-          } catch (error) {
-              showNotification(`Erro ao criar reserva: ${error.message}`, 'danger');
-          } finally {
-              submitButton.disabled = false;
-              submitButton.innerHTML = 'Confirmar Reserva';
-          }
-      });
-      
-      reserveSelectedBtn.addEventListener('click', () => {
-          const user = getUser();
-          reservaForm.responsavel.value = `${user.nome} (${user.matricula || 'N/A'})`;
-          selectedNotebooksList.innerHTML = '';
-          selectedNotebooks.forEach(id => {
-              const notebook = allNotebooks.find(n => n.id === id);
-              if (notebook) {
-                  const item = document.createElement('div');
-                  item.className = 'list-group-item';
-                  item.textContent = `${notebook.nome} ${notebook.patrimonio ? '('+notebook.patrimonio+')' : ''}`;
-                  selectedNotebooksList.appendChild(item);
-              }
-          });
-          reservaModal.show();
-      });
-
-      // --- GERENCIAMENTO DE NOTEBOOKS ---
-      addNotebookBtn.addEventListener('click', () => {
-          notebookForm.reset();
-          notebookForm.notebookEditId.value = '';
-          document.getElementById('notebookFormModalLabel').textContent = 'Cadastrar Novo Notebook';
-          gerenciarNotebooksModal.hide();
-          notebookFormModal.show();
-      });
-      
-      notebookForm.addEventListener('submit', async(e) => {
-          e.preventDefault();
-          const id = notebookForm.notebookEditId.value;
-          const notebookData = {
-              nome: notebookForm.notebookNome.value,
-              patrimonio: notebookForm.notebookPatrimonio.value,
-              status: notebookForm.notebookStatus.value,
-          };
-          const method = id ? 'PUT' : 'POST';
-          const endpoint = id ? `/notebooks/${id}` : '/notebooks';
-          try {
-              await apiFetch(endpoint, { method, body: JSON.stringify(notebookData) });
-              showNotification(`Notebook ${id ? 'atualizado' : 'cadastrado'} com sucesso!`, 'success');
-              notebookFormModal.hide();
-              loadData();
-          } catch(error) {
-              showNotification(`Erro ao salvar notebook: ${error.message}`, 'danger');
-          }
-      });
-      
-      window.handleEditNotebook = (id) => {
-          const notebook = allNotebooks.find(n => n.id === id);
-          if (!notebook) return;
-          notebookForm.reset();
-          notebookForm.notebookEditId.value = notebook.id;
-          notebookForm.notebookNome.value = notebook.nome;
-          notebookForm.notebookPatrimonio.value = notebook.patrimonio || '';
-          notebookForm.notebookStatus.value = notebook.status;
-          document.getElementById('notebookFormModalLabel').textContent = 'Editar Notebook';
-          gerenciarNotebooksModal.hide();
-          notebookFormModal.show();
-      };
-      
-      window.handleDeleteNotebook = async (id) => {
-          const notebook = allNotebooks.find(n => n.id === id);
-          if (!notebook) return;
-          if (!confirm(`Tem certeza que deseja marcar o notebook "${notebook.nome}" como inativo?`)) return;
-          try {
-              await apiFetch(`/notebooks/${id}`, { method: 'DELETE' });
-              showNotification('Notebook inativado com sucesso.', 'success');
-              loadData();
-          } catch(error) {
-              showNotification(`Erro ao inativar notebook: ${error.message}`, 'danger');
-          }
-      };
-      
-      // --- FUNÇÕES DE RENDERIZAÇÃO E UI ---
-      const toggleNotebookSelection = (id) => {
-          if (selectedNotebooks.has(id)) selectedNotebooks.delete(id);
-          else selectedNotebooks.add(id);
-          updateSelectionUI();
-      };
-      
-      const updateSelectionUI = () => {
-          document.querySelectorAll('.notebook-card').forEach(card => {
-              card.classList.toggle('selected', selectedNotebooks.has(parseInt(card.dataset.id)));
-          });
-          const count = selectedNotebooks.size;
-          selectedCountBadge.textContent = count;
-          reservationCtaContainer.style.display = count > 0 ? 'block' : 'none';
-      };
-
-      const updateUI = () => {
-        const token = getToken();
-        document.querySelectorAll('.admin-only-flex').forEach(el => el.style.display = 'none');
-        if (token) {
-          const user = getUser();
-          loginView.style.display = 'none';
-          appContent.style.display = 'block';
-          
-          let adminMenu = '';
-          if (user.role === 'admin') {
-              reservasActionsHeader.style.display = 'table-cell';
-              adminMenu = `
-                <div class="dropdown ms-2">
-                  <button class="btn btn-secondary dropdown-toggle" type="button" id="adminMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                    Admin
-                  </button>
-                  <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end" aria-labelledby="adminMenuButton">
-                    <li><a class="dropdown-item" href="#" id="navManageNotebooksBtn"><i class="bi bi-laptop me-2"></i>Gerenciar Notebooks</a></li>
-                    <li><a class="dropdown-item" href="#" id="navManageUsersBtn"><i class="bi bi-people-fill me-2"></i>Gerenciar Usuários</a></li>
-                    <li><a class="dropdown-item" href="#" id="navShowHistoryBtn"><i class="bi bi-clock-history me-2"></i>Histórico</a></li>
-                  </ul>
-                </div>
-              `;
-          } else {
-              reservasActionsHeader.style.display = 'none';
-          }
-          
-          authNavLinks.innerHTML = `
-            <span class="navbar-text me-3">Olá, ${user.nome || user.username}</span>
-            ${adminMenu}
-            <button class="btn btn-outline-light ms-2" id="logoutBtn">Sair</button>`;
-          
-          document.getElementById('logoutBtn').addEventListener('click', logout);
-          if (user.role === 'admin') {
-              document.getElementById('navManageUsersBtn').addEventListener('click', (e) => { e.preventDefault(); usersContainer.innerHTML = '<p class="text-center text-muted">Carregando...</p>'; apiFetch('/users').then(renderUsers).catch(err => showNotification(err.message, 'danger')); gerenciarUsuariosModal.show(); });
-              document.getElementById('navManageNotebooksBtn').addEventListener('click', (e) => { e.preventDefault(); gerenciarNotebooksModal.show(); });
-              document.getElementById('navShowHistoryBtn').addEventListener('click', (e) => { e.preventDefault(); historyContainer.innerHTML = '<p class="text-center text-muted">Carregando...</p>'; apiFetch('/historico').then(renderHistory).catch(err => showNotification(err.message, 'danger')); historicoModal.show(); });
-          }
-
-          loadData();
-        } else {
-          loginView.style.display = 'block';
-          appContent.style.display = 'none';
-          authNavLinks.innerHTML = '';
-        }
-      };
-      
-      const showNotification = (message, type = 'info') => {
-        const toastContainer = document.getElementById('notification-area');
-        const toastId = `toast-${Date.now()}`;
-        const toastHTML = `<div id="${toastId}" class="toast align-items-center text-white bg-${type} border-0" role="alert"><div class="d-flex"><div class="toast-body">${message}</div><button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div></div>`;
-        toastContainer.insertAdjacentHTML('beforeend', toastHTML);
-        const toast = new bootstrap.Toast(document.getElementById(toastId), { delay: 3000 });
-        toast.show();
-      };
-
-      const renderNotebooks = (notebooks, reservas) => {
-          const reservedUntilMap = new Map();
-          reservas.forEach(r => (r.notebooks || []).forEach(n => reservedUntilMap.set(n.id, new Date(r.data_fim))));
-          notebooksContainer.innerHTML = "";
-          if (notebooks.length === 0) {
-              notebooksContainer.innerHTML = '<p class="text-muted">Nenhum notebook disponível no momento.</p>';
-              return;
-          }
-          notebooks.forEach((notebook) => {
-              const card = document.createElement("div");
-              card.className = "notebook-card";
-              card.dataset.id = notebook.id;
-              card.innerHTML = `
-                <i class="bi bi-check-circle-fill selection-icon"></i>
-                <img src="notebook.png" alt="Notebook">
-                <div class="notebook-card-body">
-                  <h5 class="notebook-card-title" title="${notebook.nome}">${notebook.nome}</h5>
-                  <p class="notebook-card-text">${notebook.patrimonio ? `(${notebook.patrimonio})` : 'Sem patrimônio'}</p>
-                </div>`;
-              
-              const isReserved = reservedUntilMap.has(notebook.id) && reservedUntilMap.get(notebook.id) > new Date();
-              const isAvailable = notebook.status === "disponivel" && !isReserved;
-
-              if (isAvailable) {
-                  card.addEventListener("click", () => toggleNotebookSelection(notebook.id));
-              } else {
-                  card.classList.add("disabled");
-                  let title = `Status: ${notebook.status.replace("_", " ")}`;
-                  if (isReserved) title = `Reservado até ${reservedUntilMap.get(notebook.id).toLocaleDateString("pt-BR")}`;
-                  card.setAttribute("title", title);
-                  new bootstrap.Tooltip(card);
-              }
-              notebooksContainer.appendChild(card);
-          });
-          updateSelectionUI();
-      };
-      
-      const renderReservas = (reservas) => {
-          reservasContainer.innerHTML = "";
-          const activeReservas = reservas.filter(r => new Date(r.data_fim) > new Date());
-          reservasPlaceholder.style.display = activeReservas.length > 0 ? "none" : "block";
-          const user = getUser();
-          activeReservas.forEach((reserva) => {
-              const tr = document.createElement("tr");
-              const notebookDetails = (reserva.notebooks || []).map(nb => `${nb.patrimonio ? '('+nb.patrimonio+')' : ''}`).join(', ');
-              const nomeCompleto = reserva.responsavel;
-              const primeiroNome = nomeCompleto.split(' ')[0];
-              const deleteButtonHTML = user && user.role === 'admin' ? `<button class="btn btn-danger btn-sm" onclick="cancelarReserva('${reserva.id}')" title="Cancelar Reserva"><i class="bi bi-trash-fill"></i></button>` : '';
-              tr.innerHTML = `
-                  <td><span data-bs-toggle="tooltip" title="${nomeCompleto}">${primeiroNome}</span></td>
-                  <td>${notebookDetails || 'N/A'}</td>
-                  <td>${new Date(reserva.data_inicio).toLocaleString("pt-BR")}</td>
-                  <td>${new Date(reserva.data_fim).toLocaleDateString("pt-BR")}</td>
-                  <td>${deleteButtonHTML}</td>`;
-              reservasContainer.appendChild(tr);
-          });
-          [...reservasContainer.querySelectorAll('[data-bs-toggle="tooltip"]')].map(el => new bootstrap.Tooltip(el));
-      };
-      
-      const renderGerenciarNotebooksList = () => {
-          gerenciarNotebooksList.innerHTML = '';
-          if (allNotebooks.length === 0) {
-              gerenciarNotebooksList.innerHTML = '<p class="text-center text-muted p-3">Nenhum notebook cadastrado.</p>';
-              return;
-          }
-          allNotebooks.sort((a, b) => a.nome.localeCompare(b.nome)).forEach(notebook => {
-              const item = document.createElement('div');
-              item.className = 'list-group-item d-flex justify-content-between align-items-center';
-              const statusBadges = {
-                  disponivel: '<span class="badge bg-success">Disponível</span>',
-                  em_manutencao: '<span class="badge bg-warning text-dark">Manutenção</span>',
-                  inativo: '<span class="badge bg-secondary">Inativo</span>'
-              };
-              item.innerHTML = `
-                  <div>
-                      <h6 class="mb-1">${notebook.nome}</h6>
-                      <small class="text-muted">Patrimônio: ${notebook.patrimonio || 'N/A'}</small>
-                  </div>
-                  <div class="d-flex align-items-center">
-                      ${statusBadges[notebook.status] || ''}
-                      <button class="btn btn-outline-primary btn-sm ms-3" onclick="handleEditNotebook(${notebook.id})"><i class="bi bi-pencil-fill"></i></button>
-                      <button class="btn btn-outline-danger btn-sm ms-2" onclick="handleDeleteNotebook(${notebook.id})"><i class="bi bi-trash-fill"></i></button>
-                  </div>`;
-              gerenciarNotebooksList.appendChild(item);
-          });
-      };
-      
-      const renderHistory = (history) => {
-          if (!history || history.length === 0) {
-              historyContainer.innerHTML = '<p class="text-center text-muted p-3">Nenhum registro no histórico.</p>';
-              return;
-          }
-          const table = document.createElement('table');
-          table.className = 'table table-sm table-bordered table-striped';
-          table.innerHTML = `<thead><tr><th>Ação</th><th>Data</th><th>Responsável</th><th>Detalhes</th></tr></thead><tbody></tbody>`;
-          const tbody = table.querySelector('tbody');
-          history.forEach(entry => {
-              const tr = document.createElement('tr');
-              const actionClass = entry.action === 'RESERVA_CRIADA' ? 'text-success' : 'text-danger';
-              const notebooks = (entry.data.notebooks || []).map(n => `${n.nome} (${n.patrimonio || 'N/A'})`).join(', ');
-              const responsavel = entry.action === 'RESERVA_CANCELADA' ? `${entry.data.responsavel} (Cancelado por: ${entry.data.canceledBy})` : entry.data.responsavel;
-              tr.innerHTML = `
-                <td><strong class="${actionClass}">${entry.action.replace(/_/g, ' ')}</strong></td>
-                <td>${new Date(entry.timestamp).toLocaleString('pt-BR')}</td>
-                <td>${responsavel}</td>
-                <td>${notebooks}</td>
-              `;
-              tbody.appendChild(tr);
-          });
-          historyContainer.innerHTML = '';
-          historyContainer.appendChild(table);
-      };
-
-      const renderUsers = (users) => {
-          if (!users || users.length === 0) {
-              usersContainer.innerHTML = '<p class="text-center text-muted p-3">Nenhum usuário cadastrado.</p>';
-              return;
-          }
-          const table = document.createElement('table');
-          table.className = 'table table-sm table-bordered table-striped';
-          table.innerHTML = `<thead><tr><th>Nome</th><th>Matrícula</th><th>Email</th><th>Função</th><th>Grupo</th></tr></thead><tbody></tbody>`;
-          const tbody = table.querySelector('tbody');
-          users.forEach(user => {
-              const tr = document.createElement('tr');
-              const roleMap = { admin: 'Administrador', user: 'Usuário' };
-              const roleClass = user.role === 'admin' ? 'fw-bold text-danger' : '';
-              tr.innerHTML = `
-                <td>${user.nome}</td>
-                <td>${user.matricula || 'N/A'}</td>
-                <td>${user.email}</td>
-                <td>${user.funcao || 'N/A'}</td>
-                <td class="${roleClass}">${roleMap[user.role] || 'Desconhecido'}</td>
-              `;
-              tbody.appendChild(tr);
-          });
-          usersContainer.innerHTML = '';
-          usersContainer.appendChild(table);
-      };
-
-      // --- INICIALIZAÇÃO ---
-      updateUI();
-    });
-  </script>
-</body>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+  </body>
 </html>

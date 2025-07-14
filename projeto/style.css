@@ -1,0 +1,116 @@
+body {
+  font-family: "Inter", sans-serif;
+  background-color: #f8f9fa;
+}
+
+.main-container {
+  padding-top: 2rem;
+  padding-bottom: 4rem;
+}
+
+h1,
+h2 {
+  font-weight: 700;
+  color: #343a40;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #dee2e6;
+}
+
+#notebooks-container {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.notebook-card {
+  width: 220px;
+  border: 1px solid #dee2e6;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  position: relative; /* Adicionado para posicionamento do ícone */
+}
+
+.notebook-card:hover:not(.disabled) {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilo para card selecionado */
+.notebook-card.selected {
+  border-color: #0d6efd; /* Cor primária do Bootstrap */
+  box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
+}
+
+/* Ícone de seleção */
+.selection-icon {
+  display: none;
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 1.75rem;
+  color: #0d6efd;
+  background-color: white;
+  border-radius: 50%;
+  padding: 0;
+  line-height: 1;
+}
+
+.notebook-card.selected .selection-icon {
+  display: block;
+}
+
+.notebook-card.disabled {
+  cursor: not-allowed;
+  filter: grayscale(80%);
+  opacity: 0.65;
+}
+
+.notebook-card img {
+  display: block;
+  margin: 1rem auto 0;
+  width: 80%;
+  height: 120px;
+  object-fit: contain;
+}
+
+.notebook-card-body {
+  padding: 1rem;
+  text-align: center;
+}
+
+.notebook-card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #212529;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.notebook-card-text {
+  font-size: 0.875rem;
+  color: #6c757d;
+}
+
+.table {
+  background-color: #ffffff;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.logged-out-view {
+  display: block;
+}
+.logged-in-view {
+  display: none;
+}
+.admin-only-flex {
+  display: none !important;
+} /* Usado para dropdown */
