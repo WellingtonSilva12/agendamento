@@ -8,7 +8,7 @@ Este projeto foi construído com uma arquitetura desacoplada, com um backend rob
 
 ---
 
-## ✨ Funcionalidades Principais
+### ✨ Funcionalidades Principais
 
 - **Visualização de Notebooks**: Interface em formato de cartões que exibe todos os notebooks, com imagem, nome e número de patrimônio.
 - **Status em Tempo Real**: Os notebooks são exibidos como "disponíveis" ou "indisponíveis" (seja por manutenção ou por já estarem reservados), com feedback visual claro.
@@ -19,7 +19,7 @@ Este projeto foi construído com uma arquitetura desacoplada, com um backend rob
 
 ---
 
-## 🚀 Tecnologias Utilizadas
+### 🚀 Tecnologias Utilizadas
 
 Este projeto foi desenvolvido com as seguintes tecnologias:
 
