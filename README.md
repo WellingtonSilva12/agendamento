@@ -55,7 +55,7 @@ Antes de começar, certifique-se de que você tem o [Node.js](https://nodejs.org
 ### 1. Clonar o Repositório
 
 ```bash
-git clone [https://github.com/WellingtonSilva12/agendamento.git](https://github.com/WellingtonSilva12/agendamento.git)
+git clone https://github.com/WellingtonSilva12/agendamento.git
 cd agendamento
 ```
 

@@ -7,11 +7,13 @@ services:
   backend:
     # Constrói a imagem a partir do Dockerfile localizado na pasta ./backend
     build: ./backend
+    # Define uma política de reinício para o contentor
+    restart: unless-stopped
     # Mapeia a porta 5000 do contentor para a porta 5000 da máquina anfitriã
-    # (útil para debug, mas não estritamente necessário para a comunicação entre contentores)
     ports:
       - "5000:5000"
-    # Define um volume para persistir os dados do banco de dados
+    # Define um volume para persistir APENAS o ficheiro do banco de dados.
+    # Isto garante que os seus dados não sejam perdidos.
     volumes:
       - db-data:/usr/src/app/agendamentos.db
 
@@ -19,8 +21,9 @@ services:
   frontend:
     # Constrói a imagem a partir do Dockerfile localizado na pasta ./frontend
     build: ./frontend
+    # Define uma política de reinício para o contentor
+    restart: unless-stopped
     # Mapeia a porta 80 do contentor para a porta 80 da máquina anfitriã
-    # Isto permite aceder à aplicação em http://localhost
     ports:
       - "80:80"
     # Garante que o serviço de backend seja iniciado antes do frontend
