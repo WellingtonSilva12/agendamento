@@ -1,0 +1,335 @@
+[
+  {
+    "action": "RESERVA_CRIADA",
+    "timestamp": "2025-07-21T23:16:07.332Z",
+    "data": {
+      "reservaId": "1dfd39aa-9868-410d-9aae-9b695bdbdb4b",
+      "responsavel": "Usuario (1006)",
+      "data_inicio": "2025-07-21T23:16:07.303Z",
+      "data_fim": "2025-07-23T02:59:59.999Z",
+      "notebooks": [
+        {
+          "id": 3,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "12",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": null,
+          "criado_em": "2025-07-21 23:14:13"
+        },
+        {
+          "id": 4,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "13",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": null,
+          "criado_em": "2025-07-21 23:14:17"
+        },
+        {
+          "id": 5,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "14",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": null,
+          "criado_em": "2025-07-21 23:14:20"
+        },
+        {
+          "id": 8,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "17",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": null,
+          "criado_em": "2025-07-21 23:14:31"
+        }
+      ]
+    }
+  },
+  {
+    "action": "RESERVA_CRIADA",
+    "timestamp": "2025-07-21T23:15:05.800Z",
+    "data": {
+      "reservaId": "bc792866-7cde-437c-af22-2dbb9e689a1c",
+      "responsavel": "Administrador (1005)",
+      "data_inicio": "2025-07-21T23:15:05.761Z",
+      "data_fim": "2025-07-23T02:59:59.999Z",
+      "notebooks": [
+        {
+          "id": 9,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "18",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": null,
+          "criado_em": "2025-07-21 23:14:35"
+        },
+        {
+          "id": 10,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "19",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": null,
+          "criado_em": "2025-07-21 23:14:39"
+        },
+        {
+          "id": 11,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "20",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": null,
+          "criado_em": "2025-07-21 23:14:43"
+        }
+      ]
+    }
+  },
+  {
+    "action": "RESERVA_CRIADA",
+    "timestamp": "2025-07-15T21:27:25.857Z",
+    "data": {
+      "reservaId": "4df8bda6-8ce9-42e8-8efc-de3428e612ba",
+      "responsavel": "Usuário (1004)",
+      "data_inicio": "2025-07-15T21:27:25.835Z",
+      "data_fim": "2025-07-17T02:59:59.999Z",
+      "notebooks": [
+        {
+          "id": 11,
+          "nome": "Notebook",
+          "patrimonio": "0001",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": "2025-07-03 23:02:25",
+          "criado_em": "2025-06-28 15:37:51"
+        },
+        {
+          "id": 12,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "1041",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": null,
+          "criado_em": "2025-06-28 15:38:17"
+        },
+        {
+          "id": 13,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "1042",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": null,
+          "criado_em": "2025-06-28 18:27:54"
+        }
+      ]
+    }
+  },
+  {
+    "action": "RESERVA_CANCELADA",
+    "timestamp": "2025-07-15T21:27:09.767Z",
+    "data": {
+      "id": "3b4aa5c1-069c-467b-ae82-00a8e948856e",
+      "responsavel": "Administrador (1003)",
+      "data_inicio": "2025-07-15T21:26:46.765Z",
+      "data_fim": "2025-07-16T02:59:59.999Z",
+      "criado_em": "2025-07-15 21:26:49",
+      "atualizado_em": null,
+      "notebooks": [
+        {
+          "id": 1,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "1039",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": "2025-06-28 15:37:34",
+          "criado_em": "2025-06-25 23:44:22"
+        },
+        {
+          "id": 2,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "1040",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": "2025-06-28 18:28:05",
+          "criado_em": "2025-06-25 23:48:42"
+        },
+        {
+          "id": 3,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "1032",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": null,
+          "criado_em": "2025-06-25 23:48:51"
+        },
+        {
+          "id": 4,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "1031",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": "2025-06-28 18:49:58",
+          "criado_em": "2025-06-25 23:48:57"
+        },
+        {
+          "id": 5,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "1033",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": null,
+          "criado_em": "2025-06-25 23:49:01"
+        },
+        {
+          "id": 6,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "1034",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": "2025-06-30 23:16:18",
+          "criado_em": "2025-06-25 23:49:05"
+        },
+        {
+          "id": 7,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "1035",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": "2025-06-28 18:49:41",
+          "criado_em": "2025-06-25 23:49:08"
+        },
+        {
+          "id": 8,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "1036",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": null,
+          "criado_em": "2025-06-25 23:49:11"
+        },
+        {
+          "id": 9,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "1037",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": null,
+          "criado_em": "2025-06-25 23:49:14"
+        },
+        {
+          "id": 10,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "1038",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": null,
+          "criado_em": "2025-06-25 23:49:17"
+        }
+      ],
+      "canceledBy": "admin"
+    }
+  },
+  {
+    "action": "RESERVA_CRIADA",
+    "timestamp": "2025-07-15T21:26:49.143Z",
+    "data": {
+      "reservaId": "3b4aa5c1-069c-467b-ae82-00a8e948856e",
+      "responsavel": "Administrador (1003)",
+      "data_inicio": "2025-07-15T21:26:46.765Z",
+      "data_fim": "2025-07-16T02:59:59.999Z",
+      "notebooks": [
+        {
+          "id": 1,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "1039",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": "2025-06-28 15:37:34",
+          "criado_em": "2025-06-25 23:44:22"
+        },
+        {
+          "id": 2,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "1040",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": "2025-06-28 18:28:05",
+          "criado_em": "2025-06-25 23:48:42"
+        },
+        {
+          "id": 3,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "1032",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": null,
+          "criado_em": "2025-06-25 23:48:51"
+        },
+        {
+          "id": 4,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "1031",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": "2025-06-28 18:49:58",
+          "criado_em": "2025-06-25 23:48:57"
+        },
+        {
+          "id": 5,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "1033",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": null,
+          "criado_em": "2025-06-25 23:49:01"
+        },
+        {
+          "id": 6,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "1034",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": "2025-06-30 23:16:18",
+          "criado_em": "2025-06-25 23:49:05"
+        },
+        {
+          "id": 7,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "1035",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": "2025-06-28 18:49:41",
+          "criado_em": "2025-06-25 23:49:08"
+        },
+        {
+          "id": 8,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "1036",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": null,
+          "criado_em": "2025-06-25 23:49:11"
+        },
+        {
+          "id": 9,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "1037",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": null,
+          "criado_em": "2025-06-25 23:49:14"
+        },
+        {
+          "id": 10,
+          "nome": "Dell XPS K15s",
+          "patrimonio": "1038",
+          "status": "disponivel",
+          "inativado_em": null,
+          "atualizado_em": null,
+          "criado_em": "2025-06-25 23:49:17"
+        }
+      ]
+    }
+  }
+]
