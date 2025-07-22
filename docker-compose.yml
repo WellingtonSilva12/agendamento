@@ -1,6 +1,3 @@
-# Define a versão do Docker Compose a ser utilizada
-version: '3.8'
-
 # Define os serviços (contentores) que compõem a aplicação
 services:
   # Serviço do backend
@@ -25,7 +22,7 @@ services:
     restart: unless-stopped
     # Mapeia a porta 80 do contentor para a porta 80 da máquina anfitriã
     ports:
-      - "80:80"
+      - "8089:80"
     # Garante que o serviço de backend seja iniciado antes do frontend
     depends_on:
       - backend

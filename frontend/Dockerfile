@@ -1,16 +1,22 @@
-# Usa uma imagem oficial e leve do Nginx como base
+# Estágio de produção (imagem final leve)
 FROM nginx:1.25-alpine
 
-# Remove a configuração padrão do Nginx
-RUN rm /etc/nginx/conf.d/default.conf
+# 1. Remove configuração padrão do Nginx
+RUN rm -rf /etc/nginx/conf.d/default.conf
 
-# Copia a nossa configuração personalizada do Nginx para o local correto dentro do contentor
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# 2. Copia configuração customizada
+COPY nginx.conf /etc/nginx/conf.d/
 
-# Copia os ficheiros estáticos do frontend (HTML, CSS, JS, imagens) para a pasta que o Nginx serve
-COPY . /usr/share/nginx/html
+# 3. Copia arquivos estáticos (HTML, CSS, JS, imagens)
+COPY index.html /usr/share/nginx/html/
+COPY style.css /usr/share/nginx/html/
+COPY script.js /usr/share/nginx/html/
+COPY notebook.png /usr/share/nginx/html/
 
-# Expõe a porta 80, que é a porta padrão do HTTP
-EXPOSE 80
+# 4. Configura permissões (opcional, para garantir acesso)
+RUN chmod -R 755 /usr/share/nginx/html
 
-# O comando para iniciar o Nginx já está incluído na imagem base, não é preciso redefinir.
+# 5. Expõe a porta 80 (HTTP)
+EXPOSE 8089
+
+# Comando padrão da imagem Nginx já inicia o servidor automaticamente

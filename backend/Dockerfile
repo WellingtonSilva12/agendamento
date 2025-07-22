@@ -1,25 +1,27 @@
-# Usa uma imagem oficial do Node.js como base. A versão Alpine é leve.
-FROM node:20-alpine
+# Estágio de construção
+FROM node:20-alpine AS builder
 
-# Define o diretório de trabalho dentro do contentor
 WORKDIR /usr/src/app
 
-# Copia os ficheiros de dependências de forma explícita.
+# Copia apenas os arquivos necessários para instalação de dependências
 COPY package.json package-lock.json ./
 
-# --- PASSO DE DEPURAÇÃO ---
-# Lista os ficheiros no diretório de trabalho para confirmar que a cópia funcionou.
-# Você pode remover esta linha depois que o build funcionar.
-RUN ls -la
+# Instala as dependências de produção (remove devDependencies)
+RUN npm ci --only=production
 
-# Instala as dependências da aplicação
-RUN npm install
+# Estágio final (imagem menor)
+FROM node:20-alpine
 
-# Copia o resto do código da aplicação para o diretório de trabalho
+WORKDIR /usr/src/app
+
+# Copia apenas o necessário da etapa de construção
+COPY --from=builder /usr/src/app/node_modules ./node_modules
 COPY . .
 
-# Expõe a porta 5000 para que a aplicação possa ser acedida
+# Limpeza (opcional)
+RUN rm -rf .dockerignore .gitignore
+
 EXPOSE 5000
 
-# Comando para iniciar a aplicação quando o contentor arrancar
+# Usa npm start ou diretamente o node se souber o arquivo de entrada
 CMD [ "npm", "start" ]
